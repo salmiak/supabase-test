@@ -50,6 +50,11 @@ const routes = [
   
       next(`/weeks/${data.id}`)
     }
+  },
+  {
+    path: '/dishes',
+    name: 'dishes',
+    component: import('@/views/DishListView.vue')
   }  
 ]
 

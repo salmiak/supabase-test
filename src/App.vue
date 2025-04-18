@@ -35,6 +35,7 @@ onMounted(() => {
   </p>-->
   <nav>
     <RouterLink to="/">Go to Home</RouterLink>
+    <RouterLink to="/dishes">Go to Dishes</RouterLink>
     <WeekList class="w-64" />
   </nav>
   <main>
