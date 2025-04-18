@@ -10,6 +10,12 @@
           <h2 class="font-semibold">{{ dish.title }}</h2>
           <p>{{ dish.description }}</p>
           <a :href="dish.recipe_url" target="_blank" class="text-blue-500 underline">View Recipe</a>
+          <button
+            @click="deleteDish(dish.id)"
+            class="text-red-500 hover:text-red-700 text-sm ml-2"
+          >
+            🗑 Delete
+          </button>
         </li>
       </ul>
     </div>
@@ -138,6 +144,23 @@ const addDish = async () => {
   await dishes.value.push(data)
   newDish.value = { title: '', description: '', recipe_url: '' }
   showAddDishForm.value = false
+}
+
+const deleteDish = async (dishId: string) => {
+  if (!confirm('Are you sure you want to delete this dish?')) return
+
+  const { error } = await supabase
+    .from('dishes')
+    .delete()
+    .eq('id', dishId)
+
+  if (error) {
+    console.error('Failed to delete dish:', error)
+    return
+  }
+
+  // Remove from local list
+  dishes.value = dishes.value.filter(dish => dish.id !== dishId)
 }
 
 onMounted(fetchDishes)
