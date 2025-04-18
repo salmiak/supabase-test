@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 import { supabase } from './lib/supabaseClient'
 import { useRouter } from 'vue-router'
 
+import WeekList from '@/components/WeekList.vue'
+
 const router = useRouter()
 
 const auth = ref()
@@ -33,7 +35,7 @@ onMounted(() => {
   </p>-->
   <nav>
     <RouterLink to="/">Go to Home</RouterLink>
-    <RouterLink to="/about">Go to About</RouterLink>
+    <WeekList class="w-64" />
   </nav>
   <main>
     <RouterView />

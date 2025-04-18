@@ -2,18 +2,17 @@ import { createWebHistory, createRouter } from 'vue-router'
 import { supabase } from './lib/supabaseClient'
 
 import HomeView from './views/HomeView.vue'
-import AboutView from './views/AboutView.vue'
 import LoginView from './views/LoginView.vue'
 
 const routes = [
   { path: '/', component: HomeView, name: 'Home' },
   { path: '/login', component: LoginView, name: 'Login' },
-  { 
-    path: '/about', 
-    component: AboutView, 
-    name: 'About', 
+  {
+    path: '/weeks/:id',
+    name: 'WeekView',
+    component: () => import('@/views/WeekView.vue'),
     meta: { requiresAuth: true }
-  },
+  }  
 ]
 
 const router = createRouter({
