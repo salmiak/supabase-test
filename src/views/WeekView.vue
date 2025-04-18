@@ -24,6 +24,9 @@
           </ul>
         </div>
       </div>
+      
+      <AddMealForm :week-id="weekId" @meal-added="onMealAdded" />
+
     </div>
   </div>
 </template>
@@ -32,6 +35,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
+import AddMealForm from '@/components/AddMealForm.vue'
 
 const route = useRoute()
 const weekId = ref(route.params.id as string)
@@ -93,5 +97,9 @@ watch(() => route.params.id, (newId) => {
   weekId.value = newId as string
   fetchWeekData()
 })
+
+const onMealAdded = (meal: any) => {
+  meals.value.push(meal)
+}
 
 </script>
