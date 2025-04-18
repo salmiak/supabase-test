@@ -32,6 +32,6 @@ npm run build
 [] Change route from week id to /year/weeknbr
   [] Auto create week if navigating to a week that doesn't exist yet
 [x] List all dishes
-[] Add new dish
+[x] Add new dish
 [] Add dish to meal
 [] Move meal to another (next or previous) week
