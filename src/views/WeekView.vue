@@ -13,9 +13,12 @@
           <h2 class="font-semibold mt-2">Dishes:</h2>
           <ul class="list-disc pl-5">
             <li v-for="dish in meal.dishes" :key="dish.id">
-              <strong>{{ dish.title }}</strong>
-              <span v-if="dish.recipe_url">
-                – <a :href="dish.recipe_url" target="_blank" class="text-blue-600 underline">Recipe</a>
+              <h3 v-if="dish.recipe_url">
+                <a :href="dish.recipe_url" target="_blank" class="text-blue-600 underline">{{ dish.title }}</a>
+              </h3> 
+              <h3 v-else>{{ dish.title }}</h3>
+              <span>
+                {{ dish.description }}
               </span>
             </li>
           </ul>
@@ -31,7 +34,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const weekId = route.params.id as string // assumed route is like /weeks/:id
+const weekId = route.params.id as string
 const meals = ref<any[]>([])
 const loading = ref(true)
 const weekStartDate = ref('')
@@ -63,6 +66,7 @@ onMounted(async () => {
         dishes (
           id,
           title,
+          description,
           recipe_url
         )
       )
