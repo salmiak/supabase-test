@@ -6,31 +6,11 @@
     <div v-else>
       <div v-if="meals.length === 0">No meals planned for this week.</div>
 
-      <div v-for="meal in meals" :key="meal.id" class="mb-4 border rounded p-3 shadow">
-        <p v-if="meal.comment" class="text-gray-700 italic">📝 {{ meal.comment }}</p>
-
-        <div v-if="meal.dishes.length">
-          <h2 class="font-semibold mt-2">Dishes:</h2>
-          <ul class="list-disc pl-5">
-            <li v-for="dish in meal.dishes" :key="dish.id">
-              <h3 v-if="dish.recipe_url">
-                <a :href="dish.recipe_url" target="_blank" class="text-blue-600 underline">{{ dish.title }}</a>
-              </h3> 
-              <h3 v-else>{{ dish.title }}</h3>
-              <span>
-                {{ dish.description }}
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        <button
-                @click="deleteMeal(meal.id)"
-                class="text-red-500 hover:text-red-700 text-sm"
-              >
-                🗑 Delete
-              </button>
-      </div>
+      <MealItem
+        v-for="meal in meals"
+        :key="meal.id"
+        :meal="meal"
+        @delete-meal="deleteMeal(meal.id)"></MealItem>
       
       <AddMealForm :week-id="weekId" @meal-added="onMealAdded" />
 
@@ -43,6 +23,7 @@ import { ref, watch, onMounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
 import AddMealForm from '@/components/AddMealForm.vue'
+import MealItem from '@/components/MealItem.vue'
 
 const route = useRoute()
 const weekId = ref(route.params.id as string)
