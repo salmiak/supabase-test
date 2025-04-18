@@ -23,6 +23,13 @@
             </li>
           </ul>
         </div>
+
+        <button
+                @click="deleteMeal(meal.id)"
+                class="text-red-500 hover:text-red-700 text-sm"
+              >
+                🗑 Delete
+              </button>
       </div>
       
       <AddMealForm :week-id="weekId" @meal-added="onMealAdded" />
@@ -101,5 +108,23 @@ watch(() => route.params.id, (newId) => {
 const onMealAdded = (meal: any) => {
   meals.value.push(meal)
 }
+
+const deleteMeal = async (mealId: string) => {
+  if (!confirm('Are you sure you want to delete this meal?')) return
+
+  const { error } = await supabase
+    .from('meals')
+    .delete()
+    .eq('id', mealId)
+
+  if (error) {
+    console.error('Failed to delete meal:', error)
+    return
+  }
+
+  // Remove from local list
+  meals.value = meals.value.filter(meal => meal.id !== mealId)
+}
+
 
 </script>
