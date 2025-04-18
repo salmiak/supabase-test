@@ -29,23 +29,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const weekId = route.params.id as string
+const weekId = ref(route.params.id as string)
 const meals = ref<any[]>([])
 const loading = ref(true)
 const weekStartDate = ref('')
 
-onMounted(async () => {
+const fetchWeekData = async () => {
   loading.value = true
 
   const { data: week, error: weekError } = await supabase
     .from('weeks')
     .select('start_date')
-    .eq('id', weekId)
+    .eq('id', weekId.value)
     .single()
 
   if (weekError) {
@@ -71,7 +71,7 @@ onMounted(async () => {
         )
       )
     `)
-    .eq('week_id', weekId)
+    .eq('week_id', weekId.value)
     .order('created_at', { ascending: true })
 
   if (error) {
@@ -85,5 +85,13 @@ onMounted(async () => {
   }
 
   loading.value = false
+}
+
+onMounted(fetchWeekData)
+
+watch(() => route.params.id, (newId) => {
+  weekId.value = newId as string
+  fetchWeekData()
 })
+
 </script>
