@@ -33,5 +33,7 @@ npm run build
   [] Auto create week if navigating to a week that doesn't exist yet
 [x] List all dishes
 [x] Add new dish
-[] Add dish to meal
+[x] Add dish to meal
+[] Make it possible to upload one or more images to a dish
 [] Move meal to another (next or previous) week
+[] Make is look better

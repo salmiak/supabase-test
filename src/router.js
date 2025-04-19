@@ -1,7 +1,6 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import { supabase } from './lib/supabaseClient'
 
-import HomeView from './views/HomeView.vue'
 import LoginView from './views/LoginView.vue'
 
 function formatLocalDate(date) {
@@ -11,9 +10,21 @@ function formatLocalDate(date) {
   return `${year}-${month}-${day}`
 }
 
+// Helper function to calculate the start date of an ISO week
+function getStartDateOfISOWeek(year, week) {
+  const simple = new Date(year, 0, 1 + (week - 1) * 7)
+  const dayOfWeek = simple.getDay()
+  const isoWeekStart = simple
+  if (dayOfWeek <= 4) {
+    isoWeekStart.setDate(simple.getDate() - simple.getDay() + 1)
+  } else {
+    isoWeekStart.setDate(simple.getDate() + 8 - simple.getDay())
+  }
+  isoWeekStart.setHours(0, 0, 0, 0)
+  return isoWeekStart
+}
 
 const routes = [
-//   { path: '/', component: HomeView, name: 'Home' },
   { path: '/login', component: LoginView, name: 'Login' },
   {
     path: '/weeks/:id',
@@ -29,33 +40,62 @@ const routes = [
       const today = new Date()
   
       // Adjust to get Monday as start of week
-      const day = today.getDay() // 0 (Sun) to 6 (Sat)
-      const diff = (day === 0 ? -6 : 1) - day // e.g., if today is Sunday (0), go back 6 days
+      const day = today.getDay // 0 (Sun) to 6 (Sat)() // 0 (Sun) to 6 (Sat)
+      const diff = (day === 0 ? -6 : 1) - d // e.g., if today is Sunday (0), go back 6 daysay // e.g., if today is Sunday (0), go back 6 days
       const monday = new Date(today)
       monday.setDate(today.getDate() + diff)
       monday.setHours(0, 0, 0, 0)
-  
+
       const isoDate = formatLocalDate(monday)
-  
+
       const { data, error } = await supabase
         .from('weeks')
         .select('id')
         .eq('start_date', isoDate)
         .single()
-  
+
       if (error || !data) {
         console.warn('No current week found for start_date:', isoDate)
-        return next('/no-week') // fallback route (optional)
+        return next('/no-week')
       }
-  
+
+      next(`/weeks/${data.id}`)
+    }
+  },
+  {
+    path: '/:year/:nbr',
+    name: 'WeekByYearAndNumber',
+    beforeEnter: async (to, from, next) => {
+      const year = parseInt(to.params.year, 10)
+      const weekNumber = parseInt(to.params.nbr, 10)
+
+      if (isNaN(year) || isNaN(weekNumber)) {
+        console.error('Invalid year or week number:', to.params)
+        return next('/no-week')
+      }
+
+      const startDate = getStartDateOfISOWeek(year, weekNumber)
+      const isoDate = formatLocalDate(startDate)
+
+      const { data, error } = await supabase
+        .from('weeks')
+        .select('id')
+        .eq('start_date', isoDate)
+        .single()
+
+      if (error || !data) {
+        console.warn('No week found for year:', year, 'week number:', weekNumber)
+        return next('/no-week')
+      }
+
       next(`/weeks/${data.id}`)
     }
   },
   {
     path: '/dishes',
     name: 'dishes',
-    component: import('@/views/DishListView.vue')
-  }  
+    component: () => import('@/views/DishListView.vue')
+  }
 ]
 
 const router = createRouter({
@@ -66,7 +106,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const { data: { session } } = await supabase.auth.getSession()
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  
+
   if (requiresAuth && !session) {
     next({ name: 'Login' })
   } else {
