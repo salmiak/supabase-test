@@ -9,7 +9,7 @@
         <li v-for="dish in dishes" :key="dish.id" class="mb-2">
           <h2 class="font-semibold">{{ dish.title }}</h2>
           <p>{{ dish.description }}</p>
-          <a :href="dish.recipe_url" target="_blank" class="text-blue-500 underline">View Recipe</a>
+          <a v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank" class="text-blue-500 underline">View Recipe</a>
           <button
             @click="deleteDish(dish.id)"
             class="text-red-500 hover:text-red-700 text-sm ml-2"

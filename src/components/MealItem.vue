@@ -12,9 +12,22 @@
         <span>
           {{ dish.description }}
         </span>
+        <!-- Delete Dish Button -->
+        <button
+          @click="deleteDish(dish.id)"
+          class="text-red-500 hover:text-red-700 text-sm ml-4"
+        >
+          🗑 Remove
+        </button>
       </li>
     </ul>
   </div>
+    <!-- Dish selector -->
+    <DishSelector
+      :meal-id="meal.id"
+      @dish-added="fetchMeal"
+      class="mt-2"
+    />
 
   <button
           @click="deleteMeal()"
@@ -25,6 +38,8 @@
 </template>
 
 <script setup lang="ts">
+import DishSelector from '@/components/DishSelector.vue'
+import { supabase } from '../lib/supabaseClient'
 
 const props = defineProps<{
   meal: any
@@ -34,8 +49,52 @@ const emits = defineEmits<{
   (e: 'delete-meal', mealId: string): void
 }>()
 
+const fetchMeal = async () => {
+  const { data, error } = await supabase
+    .from('meals')
+    .select(`
+      id,
+      comment,
+      created_at,
+      meal_dishes (
+        dishes (
+          id,
+          title,
+          description,
+          recipe_url
+        )
+      )
+    `)
+    .eq('id', props.meal.id)
+    .single()
+
+  if (error) {
+    console.error('Error fetching meal:', error)
+    return
+  }
+
+  // Update the meal object with the fetched data
+  props.meal.comment = data.comment
+  props.meal.dishes = data.meal_dishes.map(md => md.dishes)
+}
+
+const deleteDish = async (dishId: string) => {
+  const { error } = await supabase
+    .from('meal_dishes')
+    .delete()
+    .eq('meal_id', props.meal.id)
+    .eq('dish_id', dishId)
+
+  if (error) {
+    console.error('Error deleting dish:', error)
+    return
+  }
+
+  // Refresh the meal data after deleting the dish
+  await fetchMeal()
+}
+
 const deleteMeal = () => {
   emits('delete-meal', props.meal.id)
 }
-
 </script>
