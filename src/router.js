@@ -24,12 +24,12 @@ function getStartDateOfISOWeek(year, week) {
 
 const routes = [
   { path: '/login', component: () => import('@/views/LoginView.vue'), name: 'Login' },
-  {
+  /*{
     path: '/weeks/:id',
     name: 'WeekView',
     component: () => import('@/views/WeekView.vue'),
     meta: { requiresAuth: true }
-  },
+  },*/
   {
     path: '/weeks/current',
     name: 'CurrentWeek',
@@ -62,6 +62,10 @@ const routes = [
   },
   {
     path: '/:year/:nbr',
+    name: 'WeekView',
+    component: () => import('@/views/WeekView.vue'),
+    meta: { requiresAuth: true }
+    /*
     name: 'WeekByYearAndNumber',
     beforeEnter: async (to, from, next) => {
       const year = parseInt(to.params.year, 10)
@@ -87,7 +91,7 @@ const routes = [
       }
   
       next(`/weeks/${data.id}`)
-    }
+    }*/
   },
   {
     path: '/dishes',

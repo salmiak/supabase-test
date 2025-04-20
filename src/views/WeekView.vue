@@ -12,7 +12,7 @@
         :meal="meal"
         @delete-meal="deleteMeal(meal.id)"></MealItem>
       
-      <AddMealForm :week-id="weekId" @meal-added="onMealAdded" />
+      <AddMealForm :week-id="weekData.id" @meal-added="onMealAdded" />
 
     </div>
   </div>
@@ -26,7 +26,9 @@ import AddMealForm from '@/components/AddMealForm.vue'
 import MealItem from '@/components/MealItem.vue'
 
 const route = useRoute()
-const weekId = ref(route.params.id as string)
+const weekNbr = ref(route.params.nbr as string)
+const weekYear = ref(route.params.year as string)
+const weekData = ref<any>({})
 const meals = ref<any[]>([])
 const loading = ref(true)
 const weekStartDate = ref('')
@@ -36,8 +38,9 @@ const fetchWeekData = async () => {
 
   const { data: week, error: weekError } = await supabase
     .from('weeks')
-    .select('start_date')
-    .eq('id', weekId.value)
+    .select('id, year, week_nbr, start_date')
+    .eq('week_nbr', weekNbr.value)
+    .eq('year', weekYear.value)
     .single()
 
   if (weekError) {
@@ -46,6 +49,7 @@ const fetchWeekData = async () => {
     return
   }
 
+  weekData.value = week
   weekStartDate.value = new Date(week.start_date).toLocaleDateString()
 
   const { data, error } = await supabase
@@ -55,6 +59,7 @@ const fetchWeekData = async () => {
       comment,
       created_at,
       meal_dishes (
+        dish_id,
         dishes (
           id,
           title,
@@ -63,7 +68,7 @@ const fetchWeekData = async () => {
         )
       )
     `)
-    .eq('week_id', weekId.value)
+    .eq('week_id', week.id)
     .order('created_at', { ascending: true })
 
   if (error) {
@@ -81,8 +86,9 @@ const fetchWeekData = async () => {
 
 onMounted(fetchWeekData)
 
-watch(() => route.params.id, (newId) => {
-  weekId.value = newId as string
+watch(() => route.params.nbr, (newNbr) => {
+  weekYear.value = route.params.year as string
+  weekNbr.value = newNbr as string
   fetchWeekData()
 })
 
