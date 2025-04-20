@@ -5,6 +5,8 @@ import { useRouter } from 'vue-router'
 
 import WeekList from '@/components/WeekList.vue'
 
+import './assets/main.css'
+
 const router = useRouter()
 
 const auth = ref()
@@ -28,17 +30,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <h1>Mat</h1>
-  <button @click="handleLogout">Log Out</button>
-  <!--<p>
-    <strong>Current route path:</strong> {{ $route.fullPath }}
-  </p>-->
   <nav>
-    <RouterLink to="/">Go to Home</RouterLink>
-    <RouterLink to="/dishes">Go to Dishes</RouterLink>
-    <WeekList class="w-64" />
+    <RouterLink to="/">Planering</RouterLink>
+    <RouterLink to="/dishes">Recept</RouterLink>
   </nav>
+
+  <!--<WeekList class="w-64" /> -->
   <main>
     <RouterView />
   </main>
+  <footer>
+    <button @click="handleLogout">Logga ut</button>
+  </footer>
 </template>

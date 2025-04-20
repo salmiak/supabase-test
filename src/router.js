@@ -1,8 +1,6 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import { supabase } from './lib/supabaseClient'
 
-import LoginView from './views/LoginView.vue'
-
 function formatLocalDate(date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -25,7 +23,7 @@ function getStartDateOfISOWeek(year, week) {
 }
 
 const routes = [
-  { path: '/login', component: LoginView, name: 'Login' },
+  { path: '/login', component: () => import('@/views/LoginView.vue'), name: 'Login' },
   {
     path: '/weeks/:id',
     name: 'WeekView',
@@ -40,20 +38,20 @@ const routes = [
       const today = new Date()
   
       // Adjust to get Monday as start of week
-      const day = today.getDay // 0 (Sun) to 6 (Sat)() // 0 (Sun) to 6 (Sat)
-      const diff = (day === 0 ? -6 : 1) - d // e.g., if today is Sunday (0), go back 6 daysay // e.g., if today is Sunday (0), go back 6 days
+      const day = today.getDay // 0 (Sun) to 6 (Sat)()
+      const diff = (day === 0 ? -6 : 1) // e.g., if today is Sunday (0), go back 6 daysay
       const monday = new Date(today)
       monday.setDate(today.getDate() + diff)
       monday.setHours(0, 0, 0, 0)
-
+  
       const isoDate = formatLocalDate(monday)
-
+  
       const { data, error } = await supabase
         .from('weeks')
         .select('id')
         .eq('start_date', isoDate)
         .single()
-
+  
       if (error || !data) {
         console.warn('No current week found for start_date:', isoDate)
         return next('/no-week')
@@ -87,7 +85,7 @@ const routes = [
         console.warn('No week found for year:', year, 'week number:', weekNumber)
         return next('/no-week')
       }
-
+  
       next(`/weeks/${data.id}`)
     }
   },
@@ -95,7 +93,7 @@ const routes = [
     path: '/dishes',
     name: 'dishes',
     component: () => import('@/views/DishListView.vue')
-  }
+  }  
 ]
 
 const router = createRouter({
@@ -106,7 +104,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const { data: { session } } = await supabase.auth.getSession()
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-
+  
   if (requiresAuth && !session) {
     next({ name: 'Login' })
   } else {
