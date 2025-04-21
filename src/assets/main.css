@@ -23,7 +23,7 @@ nav {
 }
 nav a {
   display: block;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   background: var(--background-4);
   text-decoration: none;
   color: var(--background-1);
@@ -32,7 +32,7 @@ nav a {
   font-weight: 700;
   font-size: 0.8rem;
 }
-nav a.router-link-active {
+nav a.router-link-active, nav a.active {
   background: var(--accent-4);
   color: var(--accent-1)
 }

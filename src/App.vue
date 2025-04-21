@@ -31,7 +31,7 @@ onMounted(() => {
 
 <template>
   <nav>
-    <RouterLink to="/">Planering</RouterLink>
+    <RouterLink to="/" :class="{active: $route.name==='WeekView'}">Planering</RouterLink>
     <RouterLink to="/dishes">Recept</RouterLink>
   </nav>
 
