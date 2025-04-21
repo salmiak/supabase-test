@@ -1,6 +1,6 @@
 <template>
   <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">Meal Plan for {{ weekStartDate }}</h1>
+    <h1 class="text-xl font-bold mb-4">Meal Plan for {{ weekNbr }}, {{ weekYear }}</h1>
 
     <div v-if="loading">Loading meals...</div>
     <div v-else>
@@ -26,8 +26,8 @@ import AddMealForm from '@/components/AddMealForm.vue'
 import MealItem from '@/components/MealItem.vue'
 
 const route = useRoute()
-const weekNbr = ref(route.params.nbr as string)
-const weekYear = ref(route.params.year as string)
+const weekNbr = ref(route.params.week_nbr as string)
+const weekYear = ref(route.params.week_year as string)
 const weekData = ref<any>({})
 const meals = ref<any[]>([])
 const loading = ref(true)
@@ -38,9 +38,9 @@ const fetchWeekData = async () => {
 
   const { data: week, error: weekError } = await supabase
     .from('weeks')
-    .select('id, year, week_nbr, start_date')
+    .select('id, week_year, week_nbr')
     .eq('week_nbr', weekNbr.value)
-    .eq('year', weekYear.value)
+    .eq('week_year', weekYear.value)
     .single()
 
   if (weekError) {
@@ -50,7 +50,6 @@ const fetchWeekData = async () => {
   }
 
   weekData.value = week
-  weekStartDate.value = new Date(week.start_date).toLocaleDateString()
 
   const { data, error } = await supabase
     .from('meals')
@@ -86,8 +85,8 @@ const fetchWeekData = async () => {
 
 onMounted(fetchWeekData)
 
-watch(() => route.params.nbr, (newNbr) => {
-  weekYear.value = route.params.year as string
+watch(() => route.params.week_nbr, (newNbr) => {
+  weekYear.value = route.params.week_year as string
   weekNbr.value = newNbr as string
   fetchWeekData()
 })
