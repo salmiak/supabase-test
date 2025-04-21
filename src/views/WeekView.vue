@@ -1,20 +1,18 @@
 <template>
-  <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">Meal Plan for {{ weekNbr }}, {{ weekYear }}</h1>
+  <WeekHeader></WeekHeader>
 
-    <div v-if="loading">Loading meals...</div>
-    <div v-else>
-      <div v-if="meals.length === 0">No meals planned for this week.</div>
+  <div v-if="loading">Loading meals...</div>
+  <div v-else>
+    <div v-if="meals.length === 0">No meals planned for this week.</div>
 
-      <MealItem
-        v-for="meal in meals"
-        :key="meal.id"
-        :meal="meal"
-        @delete-meal="deleteMeal(meal.id)"></MealItem>
-      
-      <AddMealForm :week-id="weekData.id" @meal-added="onMealAdded" />
+    <MealItem
+      v-for="meal in meals"
+      :key="meal.id"
+      :meal="meal"
+      @delete-meal="deleteMeal(meal.id)"></MealItem>
+    
+    <AddMealForm :week-id="weekData.id" @meal-added="onMealAdded" />
 
-    </div>
   </div>
 </template>
 
@@ -24,6 +22,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
 import AddMealForm from '@/components/AddMealForm.vue'
 import MealItem from '@/components/MealItem.vue'
+import WeekHeader from '@/components/WeekHeader.vue'
 
 const route = useRoute()
 const weekNbr = ref(route.params.week_nbr as string)
@@ -31,7 +30,6 @@ const weekYear = ref(route.params.week_year as string)
 const weekData = ref<any>({})
 const meals = ref<any[]>([])
 const loading = ref(true)
-const weekStartDate = ref('')
 
 const fetchWeekData = async () => {
   loading.value = true
