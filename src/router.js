@@ -96,7 +96,8 @@ const routes = [
   {
     path: '/dishes',
     name: 'dishes',
-    component: () => import('@/views/DishListView.vue')
+    component: () => import('@/views/DishListView.vue'),
+    meta: { requiresAuth: true }
   }  
 ]
 
