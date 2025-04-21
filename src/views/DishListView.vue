@@ -1,6 +1,6 @@
 <template>
   <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">All Dishes</h1>
+    <h1 class="text-xl font-bold mb-4">Alla recept</h1>
 
     <div v-if="loading">Loading dishes...</div>
     <div v-else>
@@ -165,3 +165,19 @@ const deleteDish = async (dishId: string) => {
 
 onMounted(fetchDishes)
 </script>
+
+<style scoped>
+h1 {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05rem;
+  margin: 0;
+  background: var(--background-5);
+  color: var(--background-1);
+  padding: 0.5rem 1rem;
+}
+</style>

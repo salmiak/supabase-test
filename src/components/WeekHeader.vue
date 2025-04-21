@@ -88,7 +88,7 @@ watch(
 <style scoped>
 h1 {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   font-size: 1rem;
   text-transform: uppercase;
