@@ -187,7 +187,7 @@ const deleteMeal = async (mealId: string) => {
 
 <style scoped>
 .meal-list {
-  max-width: 400px;;
+  max-width: 400px;
   width: 95vw;
   display: flex;
   flex-direction: column;
