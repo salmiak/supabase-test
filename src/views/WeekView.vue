@@ -60,18 +60,7 @@ const fetchWeekData = async () => {
   const { data, error } = await supabase
     .from('meals')
     .select(`
-      id,
-      comment,
-      created_at,
-      meal_dishes (
-        dish_id,
-        dishes (
-          id,
-          title,
-          description,
-          recipe_url
-        )
-      )
+      id
     `)
     .eq('week_id', week.id)
     .order('created_at', { ascending: true })
@@ -79,11 +68,7 @@ const fetchWeekData = async () => {
   if (error) {
     console.error(error)
   } else {
-    // Flatten dish list
-    meals.value = data.map(meal => ({
-      ...meal,
-      dishes: meal.meal_dishes.map(md => md.dishes)
-    }))
+    meals.value = data
   }
 
   loading.value = false
@@ -184,13 +169,3 @@ const deleteMeal = async (mealId: string) => {
   }
 }
 </script>
-
-<style scoped>
-/* .meal-list {
-  max-width: 400px;
-  width: 95vw;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-} */
-</style>
