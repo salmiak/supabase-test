@@ -1,7 +1,7 @@
 <template>
   <div>
-    <label class="block text-sm font-medium mb-1">Add dish</label>
-    <select v-model="selectedDishId" class="w-full border rounded p-2 mb-2">
+    <label>Add dish</label>
+    <select v-model="selectedDishId">
       <option disabled value="">-- Select a dish --</option>
       <option
         v-for="dish in dishes"
@@ -14,7 +14,6 @@
     <button
       @click="addDish"
       :disabled="!selectedDishId"
-      class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
     >
       ➕ Add Dish
     </button>

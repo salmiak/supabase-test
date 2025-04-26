@@ -1,15 +1,13 @@
 <!-- src/components/AddMealForm.vue -->
 <template>
-  <div class="bg-gray-50 p-4 rounded border shadow-sm">
-    <h2 class="font-semibold mb-2">➕ Add Meal</h2>
+  <div>
+    <h2>➕ Add Meal</h2>
     <input
       v-model="comment"
       placeholder="Comment (optional)"
-      class="w-full p-2 border rounded mb-2"
     />
     <button
       @click="submit"
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
     >
       Add Meal
     </button>

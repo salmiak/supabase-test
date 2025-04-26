@@ -1,13 +1,13 @@
 <template>
   <div class="mealCard">
-  <p v-if="meal.comment" class="text-gray-700 italic">📝 {{ meal.comment }}</p>
+  <p v-if="meal.comment">📝 {{ meal.comment }}</p>
 
   <div v-if="meal.dishes && meal.dishes.length">
-    <h2 class="font-semibold mt-2">Dishes:</h2>
-    <ul class="list-disc pl-5">
+    <h2>Dishes:</h2>
+    <ul>
       <li v-for="dish in meal.dishes" :key="dish.id">
         <h3 v-if="dish.recipe_url">
-          <a :href="dish.recipe_url" target="_blank" class="text-blue-600 underline">{{ dish.title }}</a>
+          <a :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
         </h3> 
         <h3 v-else>{{ dish.title }}</h3>
         <span>
@@ -16,7 +16,6 @@
         <!-- Delete Dish Button -->
         <button
           @click="deleteDish(dish.id)"
-          class="text-red-500 hover:text-red-700 text-sm ml-4"
         >
           🗑 Remove
         </button>
@@ -27,12 +26,10 @@
     <DishSelector
       :meal-id="meal.id"
       @dish-added="fetchMeal"
-      class="mt-2"
     />
 
   <button
           @click="deleteMeal()"
-          class="text-red-500 hover:text-red-700 text-sm"
         >
           🗑 Delete
         </button>
@@ -102,11 +99,11 @@ const deleteMeal = () => {
 </script>
 
 <style>
-.mealCard {
+/* .mealCard {
   background-color: var(--background-4);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+} */
 </style>

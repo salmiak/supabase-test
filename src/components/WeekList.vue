@@ -1,23 +1,21 @@
 <template>
-  <aside class="p-4 border-r h-full overflow-y-auto bg-white">
-    <h2 class="text-lg font-bold mb-4">Weeks</h2>
+  <aside>
+    <h2>Weeks</h2>
 
-    <ul v-if="weeks.length > 0" class="space-y-2">
+    <ul v-if="weeks.length > 0">
       <li
         v-for="week in weeks"
         :key="week.id"
         @click="goToWeek(week.id)"
-        class="cursor-pointer hover:bg-gray-100 p-2 rounded"
       >
         📅 {{ formatDate(week.start_date) }}
       </li>
     </ul>
 
-    <p v-else class="text-gray-500">No weeks yet</p>
+    <p v-else>No weeks yet</p>
 
     <button
       @click="createNewWeek"
-      class="mt-4 w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded"
     >
       ➕ Add next week
     </button>

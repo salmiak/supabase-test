@@ -86,7 +86,7 @@ watch(
 </script>
 
 <style scoped>
-h1 {
+/* h1 {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
@@ -103,5 +103,5 @@ h1 a {
   text-decoration: none;
   color: currentColor;
   font-weight: 700;
-}
+} */
 </style>
