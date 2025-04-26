@@ -29,11 +29,13 @@ npm run build
 ```
 
 ## Todo
-[] Change route from week id to /year/weeknbr
-  [] Auto create week if navigating to a week that doesn't exist yet
-[x] List all dishes
-[x] Add new dish
-[x] Add dish to meal
+[] Make meal-dish it's own component that fetches from server
+[] Listen to channel for each meal and dish
+[] Edit-mode of meal?
+  [] Create dish when creating or editing a meal
+  [] Search dish from server when adding to meal
 [] Make it possible to upload one or more images to a dish
 [] Move meal to another (next or previous) week
-[] Make is look better
+[] Mark meal as eaten
+[] Slide-actions (touch interactions)
+[] Markdown support

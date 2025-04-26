@@ -47,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'
 
@@ -87,6 +88,10 @@ const fetchMeal = async () => {
   props.meal.dishes = data.meal_dishes.map(md => md.dishes)
 }
 
+onMounted(() => {
+  fetchMeal()
+})
+
 const deleteDish = async (dishId: string) => {
   const { error } = await supabase
     .from('meal_dishes')
@@ -107,13 +112,3 @@ const deleteMeal = () => {
   emits('delete-meal', props.meal.id)
 }
 </script>
-
-<style>
-/* .mealCard {
-  background-color: var(--background-4);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-} */
-</style>
