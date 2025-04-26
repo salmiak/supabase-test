@@ -2,7 +2,7 @@
 
 nav a {
   @apply 
-    px-3 py-2 
+    px-3 py-1 
     bg-teal-300 text-teal-700 
     uppercase
     text-sm
@@ -17,9 +17,16 @@ nav a.router-link-active, nav a.active {
 h1 {
   @apply 
     flex
-    p-3
-    text-xl font-semibold text-center
+    justify-between
+    text-xl/5
+    font-semibold 
+    text-center
     bg-teal-100 text-teal-700;
+}
+
+h1 > * {
+  @apply text-center p-3;
+  min-width: 2.75rem;
 }
 
 

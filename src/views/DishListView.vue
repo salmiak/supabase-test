@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Alla recept</h1>
+    <h1><span>Alla recept</span></h1>
 
     <div v-if="loading">Loading dishes...</div>
     <div v-else>
