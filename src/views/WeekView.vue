@@ -110,13 +110,11 @@ const subscribeToMealUpdates = (weekId: string) => {
         if (payload.eventType === 'INSERT' && payload.new.week_id === weekId) {
           meals.value.push(payload.new)
         } else if (payload.eventType === 'UPDATE') {
-          console.log('Meal updated:', payload.new)
           const index = meals.value.findIndex(meal => meal.id === payload.new.id)
           if (index !== -1) {
             meals.value[index] = payload.new
           }
         } else if (payload.eventType === 'DELETE') {
-          console.log('Meal deleted:', payload.old)
           meals.value = meals.value.filter(meal => meal.id !== payload.old.id)
         }
       }
