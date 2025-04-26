@@ -11,13 +11,13 @@
       :meal="meal"
       @delete-meal="deleteMeal(meal.id)"></MealItem>
     
-    <AddMealForm :week-id="weekData.id" @meal-added="onMealAdded" />
+    <AddMealForm :week-id="weekData.id" />
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
 import AddMealForm from '@/components/AddMealForm.vue'
@@ -30,6 +30,7 @@ const weekYear = ref(route.params.week_year as string)
 const weekData = ref<any>({})
 const meals = ref<any[]>([])
 const loading = ref(true)
+let mealsChannel: any = null // Store the real-time channel reference
 
 const fetchWeekData = async () => {
   loading.value = true
@@ -86,9 +87,51 @@ const fetchWeekData = async () => {
   }
 
   loading.value = false
+
+  // Subscribe to real-time updates after fetching initial data
+  subscribeToMealUpdates(week.id)
+}
+
+const subscribeToMealUpdates = (weekId: string) => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (mealsChannel) {
+    mealsChannel.unsubscribe()
+  }
+
+  // Subscribe to real-time updates for the meals table
+  mealsChannel = supabase
+    .channel('realtime:meals')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'meals' /*, filter: `week_id=eq.${weekId}`*/ },
+      (payload) => {
+        console.log('Realtime event:', payload)
+
+        if (payload.eventType === 'INSERT' && payload.new.week_id === weekId) {
+          meals.value.push(payload.new)
+        } else if (payload.eventType === 'UPDATE') {
+          console.log('Meal updated:', payload.new)
+          const index = meals.value.findIndex(meal => meal.id === payload.new.id)
+          if (index !== -1) {
+            meals.value[index] = payload.new
+          }
+        } else if (payload.eventType === 'DELETE') {
+          console.log('Meal deleted:', payload.old)
+          meals.value = meals.value.filter(meal => meal.id !== payload.old.id)
+        }
+      }
+    )
+    .subscribe()
 }
 
 onMounted(fetchWeekData)
+
+onUnmounted(() => {
+  // Unsubscribe from the real-time channel when the component is unmounted
+  if (mealsChannel) {
+    mealsChannel.unsubscribe()
+  }
+})
 
 watch(() => route.params.week_nbr, (newNbr) => {
   weekYear.value = route.params.week_year as string
@@ -97,11 +140,9 @@ watch(() => route.params.week_nbr, (newNbr) => {
 })
 
 const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
-
-  // get current user
+  
   const { data: { user } } = await supabase.auth.getUser()
 
-  // fetch their family_id
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('family_id')
@@ -131,10 +172,6 @@ const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
   fetchWeekData()
 }
 
-const onMealAdded = (meal: any) => {
-  meals.value.push(meal)
-}
-
 const deleteMeal = async (mealId: string) => {
   if (!confirm('Are you sure you want to delete this meal?')) return
 
@@ -147,10 +184,5 @@ const deleteMeal = async (mealId: string) => {
     console.error('Failed to delete meal:', error)
     return
   }
-
-  // Remove from local list
-  meals.value = meals.value.filter(meal => meal.id !== mealId)
 }
-
-
 </script>

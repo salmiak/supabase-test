@@ -1,7 +1,7 @@
 <template>
   <p v-if="meal.comment" class="text-gray-700 italic">📝 {{ meal.comment }}</p>
 
-  <div v-if="meal.dishes.length">
+  <div v-if="meal.dishes && meal.dishes.length">
     <h2 class="font-semibold mt-2">Dishes:</h2>
     <ul class="list-disc pl-5">
       <li v-for="dish in meal.dishes" :key="dish.id">
