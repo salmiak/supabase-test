@@ -39,7 +39,14 @@ const fetchWeekData = async () => {
     .select('id, week_year, week_nbr')
     .eq('week_nbr', weekNbr.value)
     .eq('week_year', weekYear.value)
-    .single()
+    .maybeSingle()
+
+  if (!week) {
+    console.log('No week found, creating a new one')
+    const newWeekYear = parseInt(weekYear.value)
+    const newWeekNumber = parseInt(weekNbr.value)
+    return createNewWeek(newWeekYear, newWeekNumber)
+  }
 
   if (weekError) {
     console.error(weekError)
@@ -88,6 +95,41 @@ watch(() => route.params.week_nbr, (newNbr) => {
   weekNbr.value = newNbr as string
   fetchWeekData()
 })
+
+const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
+
+  // get current user
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // fetch their family_id
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('family_id')
+    .eq('id', user?.id)
+    .single()
+
+  if (profileError || !profile) {
+    console.error('Could not get family_id', profileError)
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('weeks')
+    .insert({ 
+      week_nbr: newWeekNumber,
+      week_year: newWeekYear,
+      family_id: profile.family_id, 
+     })
+    .select()
+    .single()
+
+  if (error || !data) {
+    console.error('Failed to create new week:', error)
+    return
+  }
+
+  fetchWeekData()
+}
 
 const onMealAdded = (meal: any) => {
   meals.value.push(meal)
