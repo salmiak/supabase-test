@@ -59,9 +59,7 @@ const fetchWeekData = async () => {
 
   const { data, error } = await supabase
     .from('meals')
-    .select(`
-      id
-    `)
+    .select('id')
     .eq('week_id', week.id)
     .order('created_at', { ascending: true })
 
