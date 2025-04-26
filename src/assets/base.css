@@ -1,33 +1,8 @@
 @import "tailwindcss";
 
-/*
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  font-weight: normal;
-}
-*/
-
-:root {
-  --background-5: #e0f7f9;
-  --background-4: #b2e3e7;
-  --background-3: #99e1e5;
-  --background-2: #81c2c5;
-  --background-1: #69a3a5;
-  --background-0: #4b8486;
-
-  --accent-5: #fce4ec;
-  --accent-4: #f8bbd0;
-  --accent-3: #f48fb1;
-  --accent-2: #f06292;
-  --accent-1: #ec407a;
-  --accent-0: #d81b60;
-}
 
 html {
-  background: var(--background-3);
+  @apply bg-teal-300;
 }
 
 button {
@@ -42,5 +17,3 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.03em; */
 }
-
-*/

@@ -30,7 +30,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <nav>
+  <nav class="grid grid-cols-2">
     <RouterLink to="/" :class="{active: $route.name==='WeekView'}">Planering</RouterLink>
     <RouterLink to="/dishes">Recept</RouterLink>
   </nav>

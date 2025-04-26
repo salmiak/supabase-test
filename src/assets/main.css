@@ -1,40 +1,33 @@
 @import './base.css';
 
-body {
-  width: 100%;
-  display: grid;
-  justify-content: stretch;
-}
-
-nav {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: stretch;
-  justify-items: stretch;
-}
 nav a {
-  display: block;
-  padding: 0.25rem 0.5rem;
-  background: var(--background-4);
-  text-decoration: none;
-  color: var(--background-1);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  font-weight: 700;
-  font-size: 0.8rem;
+  @apply 
+    px-3 py-2 
+    bg-teal-300 text-teal-700 
+    uppercase
+    text-sm
+    font-bold
+    font-stretch-extra-expanded
+    tracking-widest;
 }
 nav a.router-link-active, nav a.active {
-  background: var(--accent-4);
-  color: var(--accent-1)
+  @apply bg-pink-200 text-pink-700;
+}
+
+h1 {
+  @apply 
+    flex
+    p-3
+    text-xl font-semibold text-center
+    bg-teal-100 text-teal-700;
 }
 
 
 
-footer {
+/* footer {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 1rem;
   padding: 0.5rem;
-}
+} */
