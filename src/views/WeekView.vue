@@ -2,7 +2,7 @@
   <WeekHeader></WeekHeader>
 
   <div v-if="loading">Loading meals...</div>
-  <div v-else>
+  <div v-else class="meal-list">
     <div v-if="meals.length === 0">No meals planned for this week.</div>
 
     <MealItem
@@ -184,3 +184,13 @@ const deleteMeal = async (mealId: string) => {
   }
 }
 </script>
+
+<style scoped>
+.meal-list {
+  max-width: 400px;;
+  width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+</style>

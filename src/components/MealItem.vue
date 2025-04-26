@@ -1,4 +1,5 @@
 <template>
+  <div class="mealCard">
   <p v-if="meal.comment" class="text-gray-700 italic">📝 {{ meal.comment }}</p>
 
   <div v-if="meal.dishes && meal.dishes.length">
@@ -35,6 +36,7 @@
         >
           🗑 Delete
         </button>
+      </div>
 </template>
 
 <script setup lang="ts">
@@ -98,3 +100,13 @@ const deleteMeal = () => {
   emits('delete-meal', props.meal.id)
 }
 </script>
+
+<style>
+.mealCard {
+  background-color: var(--background-4);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+</style>
