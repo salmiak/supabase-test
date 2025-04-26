@@ -1,24 +1,38 @@
 <template>
-  <div class="mealCard">
-  <p v-if="meal.comment">📝 {{ meal.comment }}</p>
+  <div class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
+    <div class="flex justify-between bg-teal-100 border-b border-b-teal-200">
+      <h2 v-if="meal.comment"
+        class="text-base/5 font-semibold text-teal-600 py-2 px-3 
+        font-stretch-expanded
+        tracking-widest"
+      >
+        {{ meal.comment }}
+      </h2>
+      <h2 v-else
+        class="text-md font-semibold text-teal-600 py-2 px-3 
+        font-stretch-expanded
+        tracking-widest"
+      >
+        Måltid
+      </h2>
+      <button @click="deleteMeal()" class="m-1">
+        radera
+      </button>
+    </div>
 
   <div v-if="meal.dishes && meal.dishes.length">
-    <h2>Dishes:</h2>
     <ul>
-      <li v-for="dish in meal.dishes" :key="dish.id">
-        <h3 v-if="dish.recipe_url">
-          <a :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
-        </h3> 
-        <h3 v-else>{{ dish.title }}</h3>
-        <span>
-          {{ dish.description }}
-        </span>
-        <!-- Delete Dish Button -->
-        <button
-          @click="deleteDish(dish.id)"
-        >
-          🗑 Remove
-        </button>
+      <li v-for="dish in meal.dishes" :key="dish.id" class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
+        <div class="px-2">
+          <h3 class="font-semibold text-teal-700">
+            <a class="text-pink-500 underline" v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
+            <span v-else> {{ dish.title }}</span>
+          </h3>
+          <p class="text-sm text-gray-600">
+            {{ dish.description }}
+          </p>
+        </div>
+        <button @click="deleteDish(dish.id)">X</button>
       </li>
     </ul>
   </div>
@@ -26,13 +40,9 @@
     <DishSelector
       :meal-id="meal.id"
       @dish-added="fetchMeal"
+      class="px-1 py-1"
     />
 
-  <button
-          @click="deleteMeal()"
-        >
-          🗑 Delete
-        </button>
       </div>
 </template>
 
