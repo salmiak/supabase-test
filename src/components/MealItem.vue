@@ -211,7 +211,7 @@ const fetchMeal = async () => {
   meal.value.title = data.title
   meal.value.comment = data.comment
   meal.value.dishes = data.meal_dishes.map((md) => md.dishes)
-  meal.value.week = data.week_id
+  meal.value.week = Array.isArray(data.week_id) ? data.week_id[0] : data.week_id
 }
 
 const subscribeToMealUpdates = () => {
