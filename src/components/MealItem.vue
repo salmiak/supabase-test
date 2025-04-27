@@ -50,16 +50,16 @@
   </div>
   
   <div v-else class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
-    <div class="flex justify-between bg-teal-100 border-b border-b-teal-200">
+    <div class="flex justify-between items-start bg-teal-100 border-b border-b-teal-200">
       <h2 v-if="meal.title"
-        class="text-base/5 font-semibold text-teal-600 py-2 px-3 
+        class="text-base/5 font-semibold text-teal-600 py-3 px-3 
         font-stretch-expanded
         tracking-widest"
       >
         {{ meal.title }}
       </h2>
       <button @click="toggleEditMode()" class="m-1">
-        Redigera
+        <Icon name="Edit" />
       </button>
     </div>
 
@@ -87,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+import Icon from '@/components/Icon.vue';
 import { ref, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'

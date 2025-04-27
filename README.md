@@ -33,7 +33,7 @@ npm run build
 [x] Listen to channel for each meal and dish
 [] Edit-mode of meal?
   [] Create dish when creating or editing a meal
-  [] Search dish from server when adding to meal
+  [x] Search dish from server when adding to meal
 [] Make it possible to upload one or more images to a dish
 [] Move meal to another (next or previous) week
 [] Mark meal as eaten
