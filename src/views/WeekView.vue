@@ -89,7 +89,7 @@ const subscribeToMealUpdates = (weekId: string) => {
       'postgres_changes',
       { event: '*', schema: 'public', table: 'meals' /*, filter: `week_id=eq.${weekId}`*/ },
       (payload) => {
-        console.log('Realtime event:', payload)
+        console.log('Realtime event in WeekView:', payload)
 
         if (payload.eventType === 'INSERT' && payload.new.week_id === weekId) {
           meals.value.push(payload.new)
@@ -97,6 +97,12 @@ const subscribeToMealUpdates = (weekId: string) => {
           const index = meals.value.findIndex(meal => meal.id === payload.new.id)
           if (index !== -1) {
             meals.value[index] = payload.new
+          } else {
+            if (payload.new.week_id === weekId) {
+              // If the meal is not found in the current list, add it
+              // This can happen if the meal was added in another week and then moved to this week
+              meals.value.push(payload.new)
+            }
           }
         } else if (payload.eventType === 'DELETE') {
           meals.value = meals.value.filter(meal => meal.id !== payload.old.id)

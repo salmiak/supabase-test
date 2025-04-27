@@ -58,12 +58,18 @@
       >
         {{ meal.title }}
       </h2>
-      <button @click="toggleEditMode()" class="m-1">
-        <Icon name="Edit" />
-      </button>
-      <button @click="moveMealToNextWeek" class="m-1">
-        <Icon name="ArrowRight" />
-      </button>
+
+      <div class="flex">
+        <button @click="moveMealToPrevWeek" class="m-1">
+          <Icon name="ArrowLeft" />
+        </button>
+        <button @click="toggleEditMode()" class="m-1">
+          <Icon name="Edit" />
+        </button>
+        <button @click="moveMealToNextWeek" class="m-1">
+          <Icon name="ArrowRight" />
+        </button>
+      </div>
     </div>
 
     <p v-if="meal.comment" class="text-sm text-gray-600 px-3 py-3 border-b border-teal-200">
@@ -96,11 +102,11 @@ import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'
 
 const editMode = ref(false)
+
 const meal = ref({
   id: '',
   title: '',
   comment: '',
-  created_at: '',
   dishes: [],
   week: {
     id: '',
@@ -194,8 +200,13 @@ const subscribeToMealUpdates = () => {
         console.log('Realtime event for meal:', payload)
 
         if (payload.eventType === 'UPDATE') {
-          // Update the meal data when it is updated on the server
-          fetchMeal()
+          if(payload.new.week_id !== meal.value.week.id) {
+            // If the meal is moved to a different week, notify the parent component
+            emits('remove-meal', props.mealId)
+          } else {
+            // Update the meal data when it is updated on the server
+            fetchMeal()
+          }
         }
       }
     )
@@ -271,7 +282,7 @@ const getWeekId = async (weekNbr: number, weekYear: number) => {
     .maybeSingle()
 
   if (targetWeekError) {
-    console.error('Error fetching week ID:', error)
+    console.error('Error fetching week ID:', targetWeekError)
     return null
   }
 
@@ -343,5 +354,36 @@ const moveMealToNextWeek = async () => {
 
   console.log('Meal moved to next week successfully')
   emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
+}
+const moveMealToPrevWeek = async () => {
+
+// Calculate the next week number and year
+let prevWeekNbr = parseInt(meal.value.week.week_nbr) - 1
+let prevWeekYear = parseInt(meal.value.week.week_year)
+
+if (prevWeekNbr <= 0) {
+  prevWeekNbr = 52
+  prevWeekYear -= 1
+}
+
+const prevWeekId = await getWeekId(prevWeekNbr, prevWeekYear)
+if (!prevWeekId) {
+  console.error('Error fetching prev. week ID')
+  return
+}
+
+// Update the meal's week_id to the next week
+const { error: updateError } = await supabase
+  .from('meals')
+  .update({ week_id: prevWeekId })
+  .eq('id', props.mealId)
+
+if (updateError) {
+  console.error('Error moving meal to prev week:', updateError)
+  return
+}
+
+console.log('Meal moved to prev week successfully')
+emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
 }
 </script>
