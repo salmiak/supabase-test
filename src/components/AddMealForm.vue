@@ -29,11 +29,17 @@ const emit = defineEmits<{
 const title = ref('')
 
 const submit = async () => {
+
+  if (!title.value.trim()) {
+    console.error('Title is required')
+    return
+  }
+
   const { data, error } = await supabase
     .from('meals')
     .insert({
       week_id: props.weekId,
-      title: title.value || null,
+      title: title.value,
     })
 
   if (error) {
