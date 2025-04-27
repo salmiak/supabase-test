@@ -2,7 +2,7 @@
   <div v-if="editMode" class="bg-pink-50 m-2 rounded-xl shadow-sm overflow-hidden">
     <div class="flex justify-between bg-pink-100 border-b border-b-pink-200">
       <input
-        v-model="meal.comment"
+        v-model="meal.title"
         type="text"
         class="py-1 px-2 m-1 rounded-lg w-full bg-white border border-pink-300"
         placeholder="Måltidens namn"
@@ -17,6 +17,12 @@
         </button>
       </div>
     </div>
+
+    <textarea
+      v-model="meal.comment"
+      class="w-full h-24 p-2 border border-pink-300 rounded-lg m-1"
+      placeholder="Kommentarer om måltiden"
+    ></textarea>
 
     <div v-if="meal.dishes && meal.dishes.length">
       <ul>
@@ -45,24 +51,21 @@
   
   <div v-else class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
     <div class="flex justify-between bg-teal-100 border-b border-b-teal-200">
-      <h2 v-if="meal.comment"
+      <h2 v-if="meal.title"
         class="text-base/5 font-semibold text-teal-600 py-2 px-3 
         font-stretch-expanded
         tracking-widest"
       >
-        {{ meal.comment }}
-      </h2>
-      <h2 v-else
-        class="text-md font-semibold text-teal-600 py-2 px-3 
-        font-stretch-expanded
-        tracking-widest"
-      >
-        Måltid
+        {{ meal.title }}
       </h2>
       <button @click="toggleEditMode()" class="m-1">
         Redigera
       </button>
     </div>
+
+    <p v-if="meal.comment" class="text-sm text-gray-600 px-3 py-3 border-b border-teal-200">
+        {{ meal.comment }}
+      </p>
 
     <div v-if="meal.dishes && meal.dishes.length">
       <ul>
@@ -91,6 +94,7 @@ import { supabase } from '../lib/supabaseClient'
 const editMode = ref(false)
 const meal = ref({
   id: '',
+  title: '',
   comment: '',
   created_at: '',
   dishes: [],
@@ -103,7 +107,10 @@ const toggleEditMode = () => {
 const saveMeal = async () => {
   const { error } = await supabase
     .from('meals')
-    .update({ comment: meal.value.comment })
+    .update({ 
+      title: meal.value.title,
+      comment: meal.value.comment,
+    })
     .eq('id', props.mealId)
 
   if (error) {
@@ -129,6 +136,7 @@ const fetchMeal = async () => {
     .from('meals')
     .select(`
       id,
+      title,
       comment,
       created_at,
       meal_dishes (
@@ -149,6 +157,7 @@ const fetchMeal = async () => {
   }
 
   // Update the meal object with the fetched data
+  meal.value.title = data.title
   meal.value.comment = data.comment
   meal.value.dishes = data.meal_dishes.map(md => md.dishes)
 }
