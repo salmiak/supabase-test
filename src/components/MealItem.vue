@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'
 
@@ -58,6 +58,9 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'delete-meal', mealId: string): void
 }>()
+
+let mealChannel: any = null // Store the real-time channel reference
+let mealDishesChannel: any = null // Store the real-time channel for meal_dishes
 
 const fetchMeal = async () => {
   const { data, error } = await supabase
@@ -88,9 +91,53 @@ const fetchMeal = async () => {
   props.meal.dishes = data.meal_dishes.map(md => md.dishes)
 }
 
-onMounted(() => {
-  fetchMeal()
-})
+const subscribeToMealUpdates = () => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (mealChannel) {
+    mealChannel.unsubscribe()
+  }
+
+  // Subscribe to real-time updates for the specific meal
+  mealChannel = supabase
+    .channel(`realtime:meal:${props.meal.id}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'meals', filter: `id=eq.${props.meal.id}` },
+      (payload) => {
+        console.log('Realtime event for meal:', payload)
+
+        if (payload.eventType === 'UPDATE') {
+          // Update the meal data when it is updated on the server
+          fetchMeal()
+        }
+      }
+    )
+    .subscribe()
+}
+
+const subscribeToMealDishesUpdates = () => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (mealDishesChannel) {
+    mealDishesChannel.unsubscribe()
+  }
+
+  // Subscribe to real-time updates for the meal_dishes table
+  mealDishesChannel = supabase
+    .channel(`realtime:meal_dishes:${props.meal.id}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'meal_dishes', filter: `meal_id=eq.${props.meal.id}` },
+      (payload) => {
+        console.log('Realtime event for meal_dishes:', payload)
+
+        if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
+          // Refresh the meal data when a dish is added or removed
+          fetchMeal()
+        }
+      }
+    )
+    .subscribe()
+}
 
 const deleteDish = async (dishId: string) => {
   const { error } = await supabase
@@ -111,4 +158,20 @@ const deleteDish = async (dishId: string) => {
 const deleteMeal = () => {
   emits('delete-meal', props.meal.id)
 }
+
+onMounted(() => {
+  fetchMeal()
+  subscribeToMealUpdates()
+  subscribeToMealDishesUpdates()
+})
+
+onUnmounted(() => {
+  // Unsubscribe from the real-time channels when the component is unmounted
+  if (mealChannel) {
+    mealChannel.unsubscribe()
+  }
+  if (mealDishesChannel) {
+    mealDishesChannel.unsubscribe()
+  }
+})
 </script>
