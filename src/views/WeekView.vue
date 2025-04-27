@@ -9,7 +9,8 @@
       v-for="meal in meals"
       :key="meal.id"
       :mealId="meal.id"
-      @delete-meal="deleteMeal(meal.id)"></MealItem>
+      @delete-meal="deleteMeal(meal.id)"
+      @remove-meal="removeMeal(meal.id)"></MealItem>
     
     <AddMealForm :week-id="weekData.id" />
 
@@ -165,5 +166,8 @@ const deleteMeal = async (mealId: string) => {
     console.error('Failed to delete meal:', error)
     return
   }
+}
+const removeMeal = async (mealId: string) => {
+  meals.value = meals.value.filter(meal => meal.id !== mealId)
 }
 </script>

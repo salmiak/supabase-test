@@ -61,6 +61,9 @@
       <button @click="toggleEditMode()" class="m-1">
         <Icon name="Edit" />
       </button>
+      <button @click="moveMealToNextWeek" class="m-1">
+        <Icon name="ArrowRight" />
+      </button>
     </div>
 
     <p v-if="meal.comment" class="text-sm text-gray-600 px-3 py-3 border-b border-teal-200">
@@ -99,6 +102,11 @@ const meal = ref({
   comment: '',
   created_at: '',
   dishes: [],
+  week: {
+    id: '',
+    week_nbr: '',
+    week_year: ''
+  }
 })
 
 const toggleEditMode = () => {
@@ -126,7 +134,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'delete-meal', mealId: string): void
+  (e: 'delete-meal', mealId: string): void,
+  (e: 'remove-meal', mealId: string): void
 }>()
 
 let mealChannel: any = null // Store the real-time channel reference
@@ -140,6 +149,11 @@ const fetchMeal = async () => {
       title,
       comment,
       created_at,
+      week_id (
+        id,
+        week_nbr,
+        week_year
+      ),
       meal_dishes (
         dishes (
           id,
@@ -161,6 +175,7 @@ const fetchMeal = async () => {
   meal.value.title = data.title
   meal.value.comment = data.comment
   meal.value.dishes = data.meal_dishes.map(md => md.dishes)
+  meal.value.week = data.week_id
 }
 
 const subscribeToMealUpdates = () => {
@@ -246,4 +261,62 @@ onUnmounted(() => {
     mealDishesChannel.unsubscribe()
   }
 })
+
+const moveMealToNextWeek = async () => {
+
+  // Calculate the next week number and year
+  let nextWeekNbr = parseInt(meal.value.week.week_nbr) + 1
+  let nextWeekYear = parseInt(meal.value.week.week_year)
+
+  if (nextWeekNbr > 52) {
+    nextWeekNbr = 1
+    nextWeekYear += 1
+  }
+
+  // Fetch or create the next week
+  const { data: nextWeek, error: nextWeekError } = await supabase
+    .from('weeks')
+    .select('id')
+    .eq('week_nbr', nextWeekNbr)
+    .eq('week_year', nextWeekYear)
+    .maybeSingle()
+
+  if (nextWeekError) {
+    console.error('Error fetching next week:', nextWeekError)
+    return
+  }
+
+  let nextWeekId = nextWeek?.id
+  if (!nextWeekId) {
+    const { data: newWeek, error: newWeekError } = await supabase
+      .from('weeks')
+      .insert({
+        week_nbr: nextWeekNbr,
+        week_year: nextWeekYear,
+      })
+      .select()
+      .single()
+
+    if (newWeekError || !newWeek) {
+      console.error('Error creating next week:', newWeekError)
+      return
+    }
+
+    nextWeekId = newWeek.id
+  }
+
+  // Update the meal's week_id to the next week
+  const { error: updateError } = await supabase
+    .from('meals')
+    .update({ week_id: nextWeekId })
+    .eq('id', props.mealId)
+
+  if (updateError) {
+    console.error('Error moving meal to next week:', updateError)
+    return
+  }
+
+  console.log('Meal moved to next week successfully')
+  emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
+}
 </script>
