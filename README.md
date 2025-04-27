@@ -29,7 +29,7 @@ npm run build
 ```
 
 ## Todo
-[] Make meal-dish it's own component that fetches from server
+[x] Make meal-dish it's own component that fetches from server
 [x] Listen to channel for each meal and dish
 [] Edit-mode of meal?
   [] Create dish when creating or editing a meal
