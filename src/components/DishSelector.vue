@@ -6,25 +6,25 @@
       @input="searchDishes"
       type="text"
       placeholder="Sök efter en rätt..."
-      class="bg-white border border-pink-300 rounded-lg p-2"
-    />
+      class="bg-white border border-pink-300 rounded-lg p-2" />
 
     <!-- Search Results -->
-    <div v-if="dishes.length" class="bg-white rounded-lg">
+    <div
+      v-if="dishes.length"
+      class="bg-white rounded-lg">
       <ul>
         <li
           v-for="dish in dishes"
           :key="dish.id"
-          class="flex justify-between items-center p-2 border-pink-200 border-b last:border-b-0"
-        >
+          class="flex justify-between items-center p-2 border-pink-200 border-b last:border-b-0">
           <span>{{ dish.title }}</span>
-          <button @click="addDish(dish.id)">
-            Lägg till
-          </button>
+          <button @click="addDish(dish.id)">Lägg till</button>
         </li>
       </ul>
     </div>
-    <div v-else-if="!dishes.length && searchQuery" class="text-pink-400 italic text-sm text-center py-3">
+    <div
+      v-else-if="!dishes.length && searchQuery"
+      class="text-pink-400 italic text-sm text-center py-3">
       Inga rätter hittades.
     </div>
   </div>
@@ -67,12 +67,10 @@ const searchDishes = async () => {
 
 // Function to add a dish to the meal
 const addDish = async (dishId: string) => {
-  const { error } = await supabase
-    .from('meal_dishes')
-    .insert({
-      meal_id: props.mealId,
-      dish_id: dishId,
-    })
+  const { error } = await supabase.from('meal_dishes').insert({
+    meal_id: props.mealId,
+    dish_id: dishId,
+  })
 
   if (error) {
     console.error('Failed to add dish to meal:', error)

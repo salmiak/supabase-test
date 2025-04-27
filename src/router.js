@@ -3,43 +3,49 @@ import { supabase } from './lib/supabaseClient'
 
 function getISOWeekInfo(date = new Date()) {
   // Copy the date to avoid mutating the original
-  const target = new Date(date.valueOf());
-  
+  const target = new Date(date.valueOf())
+
   // Set to Thursday in the current week to ensure correct ISO week year
-  target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7));
-  
+  target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7))
+
   // ISO week year
-  const isoWeekYear = target.getFullYear();
-  
+  const isoWeekYear = target.getFullYear()
+
   // Calculate ISO week number
-  const firstThursday = new Date(isoWeekYear, 0, 4);
-  const weekNumber = Math.ceil(((target - firstThursday) / 86400000 + firstThursday.getDay() + 1) / 7);
-  
-  return { isoWeekYear, weekNumber };
+  const firstThursday = new Date(isoWeekYear, 0, 4)
+  const weekNumber = Math.ceil(
+    ((target - firstThursday) / 86400000 + firstThursday.getDay() + 1) / 7
+  )
+
+  return { isoWeekYear, weekNumber }
 }
 
 const routes = [
-  { path: '/login', component: () => import('@/views/LoginView.vue'), name: 'Login' },
+  {
+    path: '/login',
+    component: () => import('@/views/LoginView.vue'),
+    name: 'Login',
+  },
   {
     path: '/',
     name: 'CurrentWeek',
     beforeEnter: async (to, from, next) => {
-      const { isoWeekYear, weekNumber } = getISOWeekInfo();
+      const { isoWeekYear, weekNumber } = getISOWeekInfo()
       next(`/${isoWeekYear}/${weekNumber}`)
-    }
+    },
   },
   {
     path: '/:week_year/:week_nbr',
     name: 'WeekView',
     component: () => import('@/views/WeekView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
     path: '/dishes',
     name: 'dishes',
     component: () => import('@/views/DishListView.vue'),
-    meta: { requiresAuth: true }
-  }  
+    meta: { requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
@@ -48,9 +54,11 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const { data: { session } } = await supabase.auth.getSession()
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+
   if (requiresAuth && !session) {
     next({ name: 'Login' })
   } else {

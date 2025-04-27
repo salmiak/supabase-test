@@ -29,11 +29,12 @@ npm run build
 ```
 
 ## Todo
+
 [x] Make meal-dish it's own component that fetches from server
 [x] Listen to channel for each meal and dish
 [] Edit-mode of meal?
-  [] Create dish when creating or editing a meal
-  [x] Search dish from server when adding to meal
+[] Create dish when creating or editing a meal
+[x] Search dish from server when adding to meal
 [] Make it possible to upload one or more images to a dish
 [] Move meal to another (next or previous) week
 [] Mark meal as eaten

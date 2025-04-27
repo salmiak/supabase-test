@@ -1,18 +1,23 @@
 <template>
-  <div v-if="editMode" class="bg-pink-50 m-2 rounded-xl shadow-sm overflow-hidden">
+  <div
+    v-if="editMode"
+    class="bg-pink-50 m-2 rounded-xl shadow-sm overflow-hidden">
     <div class="flex justify-between bg-pink-100 border-b border-b-pink-200">
       <input
         v-model="meal.title"
         type="text"
         class="py-1 px-2 m-1 rounded-lg w-full bg-white border border-pink-300"
-        placeholder="Måltidens namn"
-      />
+        placeholder="Måltidens namn" />
 
       <div class="flex m-1">
-        <button @click="deleteMeal()" class="ml-1">
+        <button
+          @click="deleteMeal()"
+          class="ml-1">
           radera
         </button>
-        <button @click="saveMeal()" class="ml-1">
+        <button
+          @click="saveMeal()"
+          class="ml-1">
           Spara
         </button>
       </div>
@@ -21,15 +26,23 @@
     <textarea
       v-model="meal.comment"
       class="w-full h-24 p-2 border border-pink-300 rounded-lg m-1"
-      placeholder="Kommentarer om måltiden"
-    ></textarea>
+      placeholder="Kommentarer om måltiden"></textarea>
 
     <div v-if="meal.dishes && meal.dishes.length">
       <ul>
-        <li v-for="dish in meal.dishes" :key="dish.id" class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-pink-200">
+        <li
+          v-for="dish in meal.dishes"
+          :key="dish.id"
+          class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-pink-200">
           <div class="px-2">
             <h3 class="font-semibold text-teal-700">
-              <a class="text-pink-500 underline" v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
+              <a
+                class="text-pink-500 underline"
+                v-if="dish.recipe_url"
+                :href="dish.recipe_url"
+                target="_blank"
+                >{{ dish.title }}</a
+              >
               <span v-else> {{ dish.title }}</span>
             </h3>
             <p class="text-sm text-gray-600">
@@ -44,44 +57,60 @@
     <DishSelector
       :meal-id="mealId"
       @dish-added="fetchMeal"
-      class="px-1 py-1"
-    />
-
+      class="px-1 py-1" />
   </div>
-  
-  <div v-else class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
-    <div class="flex justify-between items-start bg-teal-100 border-b border-b-teal-200">
-      <h2 v-if="meal.title"
-        class="text-base/5 font-semibold text-teal-600 py-3 px-3 
-        font-stretch-expanded
-        tracking-widest"
-      >
+
+  <div
+    v-else
+    class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
+    <div
+      class="flex justify-between items-start bg-teal-100 border-b border-b-teal-200">
+      <h2
+        v-if="meal.title"
+        class="text-base/5 font-semibold text-teal-600 py-3 px-3 font-stretch-expanded tracking-widest">
         {{ meal.title }}
       </h2>
 
       <div class="flex">
-        <button @click="moveMealToPrevWeek" class="m-1">
+        <button
+          @click="moveMealToPrevWeek"
+          class="m-1">
           <Icon name="ArrowLeft" />
         </button>
-        <button @click="toggleEditMode()" class="m-1">
+        <button
+          @click="toggleEditMode()"
+          class="m-1">
           <Icon name="Edit" />
         </button>
-        <button @click="moveMealToNextWeek" class="m-1">
+        <button
+          @click="moveMealToNextWeek"
+          class="m-1">
           <Icon name="ArrowRight" />
         </button>
       </div>
     </div>
 
-    <p v-if="meal.comment" class="text-sm text-gray-600 px-3 py-3 border-b border-teal-200">
-        {{ meal.comment }}
-      </p>
+    <p
+      v-if="meal.comment"
+      class="text-sm text-gray-600 px-3 py-3 border-b border-teal-200">
+      {{ meal.comment }}
+    </p>
 
     <div v-if="meal.dishes && meal.dishes.length">
       <ul>
-        <li v-for="dish in meal.dishes" :key="dish.id" class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
+        <li
+          v-for="dish in meal.dishes"
+          :key="dish.id"
+          class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
           <div class="px-2">
             <h3 class="font-semibold text-teal-700">
-              <a class="text-pink-500 underline" v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
+              <a
+                class="text-pink-500 underline"
+                v-if="dish.recipe_url"
+                :href="dish.recipe_url"
+                target="_blank"
+                >{{ dish.title }}</a
+              >
               <span v-else> {{ dish.title }}</span>
             </h3>
             <p class="text-sm text-gray-600">
@@ -92,11 +121,10 @@
       </ul>
     </div>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import Icon from '@/components/Icon.vue';
+import Icon from '@/components/Icon.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'
@@ -111,8 +139,8 @@ const meal = ref({
   week: {
     id: '',
     week_nbr: '',
-    week_year: ''
-  }
+    week_year: '',
+  },
 })
 
 const toggleEditMode = () => {
@@ -122,7 +150,7 @@ const toggleEditMode = () => {
 const saveMeal = async () => {
   const { error } = await supabase
     .from('meals')
-    .update({ 
+    .update({
       title: meal.value.title,
       comment: meal.value.comment,
     })
@@ -140,7 +168,7 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'delete-meal', mealId: string): void,
+  (e: 'delete-meal', mealId: string): void
   (e: 'remove-meal', mealId: string): void
 }>()
 
@@ -150,7 +178,8 @@ let mealDishesChannel: any = null // Store the real-time channel for meal_dishes
 const fetchMeal = async () => {
   const { data, error } = await supabase
     .from('meals')
-    .select(`
+    .select(
+      `
       id,
       title,
       comment,
@@ -168,7 +197,8 @@ const fetchMeal = async () => {
           recipe_url
         )
       )
-    `)
+    `
+    )
     .eq('id', props.mealId)
     .single()
 
@@ -180,7 +210,7 @@ const fetchMeal = async () => {
   // Update the meal object with the fetched data
   meal.value.title = data.title
   meal.value.comment = data.comment
-  meal.value.dishes = data.meal_dishes.map(md => md.dishes)
+  meal.value.dishes = data.meal_dishes.map((md) => md.dishes)
   meal.value.week = data.week_id
 }
 
@@ -195,12 +225,17 @@ const subscribeToMealUpdates = () => {
     .channel(`realtime:meal:${props.mealId}`)
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'meals', filter: `id=eq.${props.mealId}` },
+      {
+        event: '*',
+        schema: 'public',
+        table: 'meals',
+        filter: `id=eq.${props.mealId}`,
+      },
       (payload) => {
         console.log('Realtime event for meal:', payload)
 
         if (payload.eventType === 'UPDATE') {
-          if(payload.new.week_id !== meal.value.week.id) {
+          if (payload.new.week_id !== meal.value.week.id) {
             // If the meal is moved to a different week, notify the parent component
             emits('remove-meal', props.mealId)
           } else {
@@ -224,7 +259,12 @@ const subscribeToMealDishesUpdates = () => {
     .channel(`realtime:meal_dishes:${props.mealId}`)
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'meal_dishes', filter: `meal_id=eq.${props.mealId}` },
+      {
+        event: '*',
+        schema: 'public',
+        table: 'meal_dishes',
+        filter: `meal_id=eq.${props.mealId}`,
+      },
       (payload) => {
         console.log('Realtime event for meal_dishes:', payload)
 
@@ -290,7 +330,9 @@ const getWeekId = async (weekNbr: number, weekYear: number) => {
   if (!targetWeekId) {
     console.log('No week found, creating a new one')
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -308,24 +350,23 @@ const getWeekId = async (weekNbr: number, weekYear: number) => {
       .insert({
         week_nbr: weekNbr,
         week_year: weekYear,
-        family_id: profile.family_id, 
+        family_id: profile.family_id,
       })
       .select()
       .single()
 
-      if (newWeekError || !newWeek) {
-        console.error('Error creating next week:', newWeekError)
-        return
-      }
-
-      targetWeekId = newWeek.id
+    if (newWeekError || !newWeek) {
+      console.error('Error creating next week:', newWeekError)
+      return
     }
+
+    targetWeekId = newWeek.id
+  }
 
   return targetWeekId
 }
 
 const moveMealToNextWeek = async () => {
-
   // Calculate the next week number and year
   let nextWeekNbr = parseInt(meal.value.week.week_nbr) + 1
   let nextWeekYear = parseInt(meal.value.week.week_year)
@@ -356,34 +397,33 @@ const moveMealToNextWeek = async () => {
   emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
 }
 const moveMealToPrevWeek = async () => {
+  // Calculate the next week number and year
+  let prevWeekNbr = parseInt(meal.value.week.week_nbr) - 1
+  let prevWeekYear = parseInt(meal.value.week.week_year)
 
-// Calculate the next week number and year
-let prevWeekNbr = parseInt(meal.value.week.week_nbr) - 1
-let prevWeekYear = parseInt(meal.value.week.week_year)
+  if (prevWeekNbr <= 0) {
+    prevWeekNbr = 52
+    prevWeekYear -= 1
+  }
 
-if (prevWeekNbr <= 0) {
-  prevWeekNbr = 52
-  prevWeekYear -= 1
-}
+  const prevWeekId = await getWeekId(prevWeekNbr, prevWeekYear)
+  if (!prevWeekId) {
+    console.error('Error fetching prev. week ID')
+    return
+  }
 
-const prevWeekId = await getWeekId(prevWeekNbr, prevWeekYear)
-if (!prevWeekId) {
-  console.error('Error fetching prev. week ID')
-  return
-}
+  // Update the meal's week_id to the next week
+  const { error: updateError } = await supabase
+    .from('meals')
+    .update({ week_id: prevWeekId })
+    .eq('id', props.mealId)
 
-// Update the meal's week_id to the next week
-const { error: updateError } = await supabase
-  .from('meals')
-  .update({ week_id: prevWeekId })
-  .eq('id', props.mealId)
+  if (updateError) {
+    console.error('Error moving meal to prev week:', updateError)
+    return
+  }
 
-if (updateError) {
-  console.error('Error moving meal to prev week:', updateError)
-  return
-}
-
-console.log('Meal moved to prev week successfully')
-emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
+  console.log('Meal moved to prev week successfully')
+  emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
 }
 </script>

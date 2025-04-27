@@ -2,7 +2,9 @@
   <WeekHeader></WeekHeader>
 
   <div v-if="loading">Loading meals...</div>
-  <div v-else class="meal-list">
+  <div
+    v-else
+    class="meal-list">
     <div v-if="meals.length === 0">No meals planned for this week.</div>
 
     <MealItem
@@ -11,9 +13,8 @@
       :mealId="meal.id"
       @delete-meal="deleteMeal(meal.id)"
       @remove-meal="removeMeal(meal.id)"></MealItem>
-    
-    <AddMealForm :week-id="weekData.id" />
 
+    <AddMealForm :week-id="weekData.id" />
   </div>
 </template>
 
@@ -64,7 +65,7 @@ const fetchWeekData = async () => {
     .eq('week_id', week.id)
     .order('created_at', { ascending: true })
 
-  if (error) {  
+  if (error) {
     console.error(error)
   } else {
     meals.value = data
@@ -87,14 +88,20 @@ const subscribeToMealUpdates = (weekId: string) => {
     .channel('realtime:meals')
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'meals' /*, filter: `week_id=eq.${weekId}`*/ },
+      {
+        event: '*',
+        schema: 'public',
+        table: 'meals' /*, filter: `week_id=eq.${weekId}`*/,
+      },
       (payload) => {
         console.log('Realtime event in WeekView:', payload)
 
         if (payload.eventType === 'INSERT' && payload.new.week_id === weekId) {
           meals.value.push(payload.new)
         } else if (payload.eventType === 'UPDATE') {
-          const index = meals.value.findIndex(meal => meal.id === payload.new.id)
+          const index = meals.value.findIndex(
+            (meal) => meal.id === payload.new.id
+          )
           if (index !== -1) {
             meals.value[index] = payload.new
           } else {
@@ -105,7 +112,7 @@ const subscribeToMealUpdates = (weekId: string) => {
             }
           }
         } else if (payload.eventType === 'DELETE') {
-          meals.value = meals.value.filter(meal => meal.id !== payload.old.id)
+          meals.value = meals.value.filter((meal) => meal.id !== payload.old.id)
         }
       }
     )
@@ -121,15 +128,19 @@ onUnmounted(() => {
   }
 })
 
-watch(() => route.params.week_nbr, (newNbr) => {
-  weekYear.value = route.params.week_year as string
-  weekNbr.value = newNbr as string
-  fetchWeekData()
-})
+watch(
+  () => route.params.week_nbr,
+  (newNbr) => {
+    weekYear.value = route.params.week_year as string
+    weekNbr.value = newNbr as string
+    fetchWeekData()
+  }
+)
 
 const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
-  
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -144,11 +155,11 @@ const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
 
   const { data, error } = await supabase
     .from('weeks')
-    .insert({ 
+    .insert({
       week_nbr: newWeekNumber,
       week_year: newWeekYear,
-      family_id: profile.family_id, 
-     })
+      family_id: profile.family_id,
+    })
     .select()
     .single()
 
@@ -163,10 +174,7 @@ const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
 const deleteMeal = async (mealId: string) => {
   if (!confirm('Are you sure you want to delete this meal?')) return
 
-  const { error } = await supabase
-    .from('meals')
-    .delete()
-    .eq('id', mealId)
+  const { error } = await supabase.from('meals').delete().eq('id', mealId)
 
   if (error) {
     console.error('Failed to delete meal:', error)
@@ -174,6 +182,6 @@ const deleteMeal = async (mealId: string) => {
   }
 }
 const removeMeal = async (mealId: string) => {
-  meals.value = meals.value.filter(meal => meal.id !== mealId)
+  meals.value = meals.value.filter((meal) => meal.id !== mealId)
 }
 </script>

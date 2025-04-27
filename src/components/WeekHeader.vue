@@ -1,10 +1,16 @@
 <template>
   <h1>
     <RouterLink :to="prevWeekRoute">&larr;</RouterLink>
-    <RouterLink v-if="isCurrentWeek" :to="nextWeekRoute">
+    <RouterLink
+      v-if="isCurrentWeek"
+      :to="nextWeekRoute">
       Denna vecka
     </RouterLink>
-    <RouterLink v-else to="/">Vecka {{ weekNbr }}</RouterLink>
+    <RouterLink
+      v-else
+      to="/"
+      >Vecka {{ weekNbr }}</RouterLink
+    >
     <RouterLink :to="nextWeekRoute">&rarr;</RouterLink>
   </h1>
 </template>
@@ -19,38 +25,47 @@ const weekYear = ref(route.params.week_year as string)
 
 function getISOWeekInfo(date = new Date()) {
   // Copy the date to avoid mutating the original
-  const target: Date = new Date(date.valueOf());
-  
+  const target: Date = new Date(date.valueOf())
+
   // Set to Thursday in the current week to ensure correct ISO week year
-  target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7));
-  
+  target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7))
+
   // ISO week year
-  const isoWeekYear = target.getFullYear();
-  
+  const isoWeekYear = target.getFullYear()
+
   // Calculate ISO week number
-  const firstThursday: Date = new Date(isoWeekYear, 0, 4);
-  const weekNumber = Math.ceil(((target.getTime() - firstThursday.getTime()) / 86400000 + firstThursday.getDay() + 1) / 7);
-  
-  return { isoWeekYear, weekNumber };
+  const firstThursday: Date = new Date(isoWeekYear, 0, 4)
+  const weekNumber = Math.ceil(
+    ((target.getTime() - firstThursday.getTime()) / 86400000 +
+      firstThursday.getDay() +
+      1) /
+      7
+  )
+
+  return { isoWeekYear, weekNumber }
 }
 
 const isCurrentWeek = computed(() => {
-  const { isoWeekYear, weekNumber } = getISOWeekInfo();
-  return parseInt(weekNbr.value) === weekNumber && parseInt(weekYear.value) === isoWeekYear;
+  const { isoWeekYear, weekNumber } = getISOWeekInfo()
+  return (
+    parseInt(weekNbr.value) === weekNumber &&
+    parseInt(weekYear.value) === isoWeekYear
+  )
 })
 
 function getWeeksInYear(year: number): number {
-  const dec28 = new Date(year, 11, 28); // Dec 28th
-  const day = dec28.getUTCDay(); // 0 (Sun) to 6 (Sat)
-  const thursday = new Date(dec28);
-  thursday.setUTCDate(dec28.getUTCDate() - ((day + 6) % 7) + 3); // move to Thursday of that week
+  const dec28 = new Date(year, 11, 28) // Dec 28th
+  const day = dec28.getUTCDay() // 0 (Sun) to 6 (Sat)
+  const thursday = new Date(dec28)
+  thursday.setUTCDate(dec28.getUTCDate() - ((day + 6) % 7) + 3) // move to Thursday of that week
 
-  const firstThursday = new Date(Date.UTC(year, 0, 4)); // Jan 4th is always in week 1
+  const firstThursday = new Date(Date.UTC(year, 0, 4)) // Jan 4th is always in week 1
   const weekNumber = Math.round(
-    ((thursday.getTime() - firstThursday.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1
-  );
+    (thursday.getTime() - firstThursday.getTime()) / (7 * 24 * 60 * 60 * 1000) +
+      1
+  )
 
-  return weekNumber;
+  return weekNumber
 }
 
 const prevWeekRoute = computed(() => {
@@ -61,7 +76,7 @@ const prevWeekRoute = computed(() => {
     const prevYearNbr = prevYear - 1
     return `/${prevYearNbr}/${getWeeksInYear(prevYearNbr)}/`
   }
-  
+
   return `/${prevYear}/${prevWeekNbr}/`
 })
 const nextWeekRoute = computed(() => {
@@ -72,12 +87,12 @@ const nextWeekRoute = computed(() => {
     const nextYearNbr = nextYear + 1
     return `/${nextYearNbr}/1/`
   }
-  
+
   return `/${nextYear}/${nextWeekNbr}/`
 })
 
 watch(
-  () => route.params, 
+  () => route.params,
   () => {
     weekYear.value = route.params.week_year as string
     weekNbr.value = route.params.week_nbr as string

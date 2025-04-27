@@ -1,5 +1,4 @@
-@import "tailwindcss";
-
+@import 'tailwindcss';
 
 html {
   @apply bg-teal-300;
@@ -11,6 +10,5 @@ button {
   text-xs/5 font-semibold font-stretch-ultra-expanded tracking-widest uppercase
   text-center
   border-1 border-pink-300 rounded-lg
-  hover:bg-teal-300
-  
+  hover:bg-teal-300;
 }

@@ -3,8 +3,6 @@ import { ref, onMounted } from 'vue'
 import { supabase } from './lib/supabaseClient'
 import { useRouter } from 'vue-router'
 
-import WeekList from '@/components/WeekList.vue'
-
 import './assets/main.css'
 
 const router = useRouter()
@@ -31,7 +29,11 @@ onMounted(() => {
 
 <template>
   <nav class="grid grid-cols-2">
-    <RouterLink to="/" :class="{active: $route.name==='WeekView'}">Planering</RouterLink>
+    <RouterLink
+      to="/"
+      :class="{ active: $route.name === 'WeekView' }"
+      >Planering</RouterLink
+    >
     <RouterLink to="/dishes">Recept</RouterLink>
   </nav>
 

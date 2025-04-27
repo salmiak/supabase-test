@@ -20,6 +20,6 @@ const signInWithEmail = async () => {
 
 <template>
   <h2>Logga in</h2>
-  <button @click="signInWithEmail">Skicka magiskt mejl</button><br/>
+  <button @click="signInWithEmail">Skicka magiskt mejl</button><br />
   {{ status }}
 </template>

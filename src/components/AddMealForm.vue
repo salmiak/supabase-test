@@ -4,13 +4,8 @@
     <h2>Add Meal</h2>
     <input
       v-model="title"
-      placeholder="Namn på måltid"
-    />
-    <button
-      @click="submit"
-    >
-      Add Meal
-    </button>
+      placeholder="Namn på måltid" />
+    <button @click="submit">Add Meal</button>
   </div>
 </template>
 
@@ -29,18 +24,15 @@ const emit = defineEmits<{
 const title = ref('')
 
 const submit = async () => {
-
   if (!title.value.trim()) {
     console.error('Title is required')
     return
   }
 
-  const { data, error } = await supabase
-    .from('meals')
-    .insert({
-      week_id: props.weekId,
-      title: title.value,
-    })
+  const { data, error } = await supabase.from('meals').insert({
+    week_id: props.weekId,
+    title: title.value,
+  })
 
   if (error) {
     console.error('Failed to add meal:', error)

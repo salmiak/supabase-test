@@ -6,26 +6,25 @@
     <div v-else>
       <div v-if="dishes.length === 0">No dishes found.</div>
       <ul>
-        <li v-for="dish in dishes" :key="dish.id">
+        <li
+          v-for="dish in dishes"
+          :key="dish.id">
           <h2>{{ dish.title }}</h2>
           <p>{{ dish.description }}</p>
-          <a v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">View Recipe</a>
-          <button
-            @click="deleteDish(dish.id)"
+          <a
+            v-if="dish.recipe_url"
+            :href="dish.recipe_url"
+            target="_blank"
+            >View Recipe</a
           >
-            🗑 Delete
-          </button>
+          <button @click="deleteDish(dish.id)">🗑 Delete</button>
         </li>
       </ul>
     </div>
   </div>
 
   <!-- Add Dish Button -->
-  <button
-    @click="showAddDishForm = true"
-  >
-    Add New Dish
-  </button>
+  <button @click="showAddDishForm = true">Add New Dish</button>
 
   <!-- Add Dish Form -->
   <div v-if="showAddDishForm">
@@ -37,41 +36,31 @@
           v-model="newDish.title"
           id="title"
           type="text"
-          required
-        />
+          required />
       </div>
       <div>
         <label for="description">Description</label>
         <textarea
           v-model="newDish.description"
           id="description"
-          required
-        ></textarea>
+          required></textarea>
       </div>
       <div>
         <label for="recipe_url">Recipe URL</label>
         <input
           v-model="newDish.recipe_url"
           id="recipe_url"
-          type="url"
-        />
+          type="url" />
       </div>
-      <button
-        type="submit"
-      >
-        Save Dish
-      </button>
+      <button type="submit">Save Dish</button>
       <button
         type="button"
-        @click="showAddDishForm = false"
-      >
+        @click="showAddDishForm = false">
         Cancel
       </button>
     </form>
   </div>
 </template>
-
-
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
@@ -83,7 +72,7 @@ const showAddDishForm = ref(false)
 const newDish = ref({
   title: '',
   description: '',
-  recipe_url: ''
+  recipe_url: '',
 })
 
 const fetchDishes = async () => {
@@ -103,9 +92,10 @@ const fetchDishes = async () => {
 }
 
 const addDish = async () => {
-
   // get current user
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // fetch their family_id
   const { data: profile, error: profileError } = await supabase
@@ -119,9 +109,9 @@ const addDish = async () => {
     return
   }
 
-  const {data, error } = await supabase
+  const { data, error } = await supabase
     .from('dishes')
-    .insert( {
+    .insert({
       ...newDish.value,
       family_id: profile.family_id,
     })
@@ -142,10 +132,7 @@ const addDish = async () => {
 const deleteDish = async (dishId: string) => {
   if (!confirm('Are you sure you want to delete this dish?')) return
 
-  const { error } = await supabase
-    .from('dishes')
-    .delete()
-    .eq('id', dishId)
+  const { error } = await supabase.from('dishes').delete().eq('id', dishId)
 
   if (error) {
     console.error('Failed to delete dish:', error)
@@ -153,7 +140,7 @@ const deleteDish = async (dishId: string) => {
   }
 
   // Remove from local list
-  dishes.value = dishes.value.filter(dish => dish.id !== dishId)
+  dishes.value = dishes.value.filter((dish) => dish.id !== dishId)
 }
 
 onMounted(fetchDishes)

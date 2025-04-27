@@ -1,8 +1,7 @@
 @import './base.css';
 
 nav a {
-  @apply 
-    px-3 py-1 
+  @apply px-3 py-1 
     bg-teal-300 text-teal-700 
     uppercase
     text-sm
@@ -10,13 +9,13 @@ nav a {
     font-stretch-extra-expanded
     tracking-widest;
 }
-nav a.router-link-active, nav a.active {
+nav a.router-link-active,
+nav a.active {
   @apply bg-pink-200 text-pink-700;
 }
 
 h1 {
-  @apply 
-    flex
+  @apply flex
     justify-between
     text-xl/5
     font-semibold 
@@ -28,8 +27,6 @@ h1 > * {
   @apply text-center p-3;
   min-width: 2.75rem;
 }
-
-
 
 /* footer {
   display: flex;
