@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-[1fr_fit-content(20ch)] gap-1">
-    <select v-model="selectedDishId" class="border border-teal-300 rounded-lg p-1">
+    <select v-model="selectedDishId" class="bg-white border border-pink-300 rounded-lg p-1">
       <option disabled value="">-- Välj en rätt --</option>
       <option
         v-for="dish in dishes"

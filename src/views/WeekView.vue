@@ -63,7 +63,7 @@ const fetchWeekData = async () => {
     .eq('week_id', week.id)
     .order('created_at', { ascending: true })
 
-  if (error) {
+  if (error) {  
     console.error(error)
   } else {
     meals.value = data

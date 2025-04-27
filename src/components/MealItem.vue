@@ -1,5 +1,49 @@
 <template>
-  <div class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
+  <div v-if="editMode" class="bg-pink-50 m-2 rounded-xl shadow-sm overflow-hidden">
+    <div class="flex justify-between bg-pink-100 border-b border-b-pink-200">
+      <input
+        v-model="meal.comment"
+        type="text"
+        class="py-1 px-2 m-1 rounded-lg w-full bg-white border border-pink-300"
+        placeholder="Måltidens namn"
+      />
+
+      <div class="flex m-1">
+        <button @click="deleteMeal()" class="ml-1">
+          radera
+        </button>
+        <button @click="saveMeal()" class="ml-1">
+          Spara
+        </button>
+      </div>
+    </div>
+
+    <div v-if="meal.dishes && meal.dishes.length">
+      <ul>
+        <li v-for="dish in meal.dishes" :key="dish.id" class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-pink-200">
+          <div class="px-2">
+            <h3 class="font-semibold text-teal-700">
+              <a class="text-pink-500 underline" v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
+              <span v-else> {{ dish.title }}</span>
+            </h3>
+            <p class="text-sm text-gray-600">
+              {{ dish.description }}
+            </p>
+          </div>
+          <button @click="deleteDish(dish.id)">X</button>
+        </li>
+      </ul>
+    </div>
+    <!-- Dish selector -->
+    <DishSelector
+      :meal-id="meal.id"
+      @dish-added="fetchMeal"
+      class="px-1 py-1"
+    />
+
+  </div>
+  
+  <div v-else class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
     <div class="flex justify-between bg-teal-100 border-b border-b-teal-200">
       <h2 v-if="meal.comment"
         class="text-base/5 font-semibold text-teal-600 py-2 px-3 
@@ -15,41 +59,53 @@
       >
         Måltid
       </h2>
-      <button @click="deleteMeal()" class="m-1">
-        radera
+      <button @click="toggleEditMode()" class="m-1">
+        Redigera
       </button>
     </div>
 
-  <div v-if="meal.dishes && meal.dishes.length">
-    <ul>
-      <li v-for="dish in meal.dishes" :key="dish.id" class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
-        <div class="px-2">
-          <h3 class="font-semibold text-teal-700">
-            <a class="text-pink-500 underline" v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
-            <span v-else> {{ dish.title }}</span>
-          </h3>
-          <p class="text-sm text-gray-600">
-            {{ dish.description }}
-          </p>
-        </div>
-        <button @click="deleteDish(dish.id)">X</button>
-      </li>
-    </ul>
+    <div v-if="meal.dishes && meal.dishes.length">
+      <ul>
+        <li v-for="dish in meal.dishes" :key="dish.id" class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
+          <div class="px-2">
+            <h3 class="font-semibold text-teal-700">
+              <a class="text-pink-500 underline" v-if="dish.recipe_url" :href="dish.recipe_url" target="_blank">{{ dish.title }}</a>
+              <span v-else> {{ dish.title }}</span>
+            </h3>
+            <p class="text-sm text-gray-600">
+              {{ dish.description }}
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
-    <!-- Dish selector -->
-    <DishSelector
-      :meal-id="meal.id"
-      @dish-added="fetchMeal"
-      class="px-1 py-1"
-    />
 
-      </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'
+
+const editMode = ref(false)
+
+const toggleEditMode = () => {
+  editMode.value = !editMode.value
+}
+
+const saveMeal = async () => {
+  const { error } = await supabase
+    .from('meals')
+    .update({ comment: props.meal.comment })
+    .eq('id', props.meal.id)
+
+  if (error) {
+    console.error('Error saving meal:', error)
+  } else {
+    editMode.value = false
+  }
+}
 
 const props = defineProps<{
   meal: any
