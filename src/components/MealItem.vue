@@ -262,6 +262,57 @@ onUnmounted(() => {
   }
 })
 
+const getWeekId = async (weekNbr: number, weekYear: number) => {
+  const { data: targetWeek, error: targetWeekError } = await supabase
+    .from('weeks')
+    .select('id')
+    .eq('week_nbr', weekNbr)
+    .eq('week_year', weekYear)
+    .maybeSingle()
+
+  if (targetWeekError) {
+    console.error('Error fetching week ID:', error)
+    return null
+  }
+
+  let targetWeekId = targetWeek?.id
+  if (!targetWeekId) {
+    console.log('No week found, creating a new one')
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('family_id')
+      .eq('id', user?.id)
+      .single()
+
+    if (profileError || !profile) {
+      console.error('Could not get family_id', profileError)
+      return
+    }
+
+    const { data: newWeek, error: newWeekError } = await supabase
+      .from('weeks')
+      .insert({
+        week_nbr: weekNbr,
+        week_year: weekYear,
+        family_id: profile.family_id, 
+      })
+      .select()
+      .single()
+
+      if (newWeekError || !newWeek) {
+        console.error('Error creating next week:', newWeekError)
+        return
+      }
+
+      targetWeekId = newWeek.id
+    }
+
+  return targetWeekId
+}
+
 const moveMealToNextWeek = async () => {
 
   // Calculate the next week number and year
@@ -273,36 +324,10 @@ const moveMealToNextWeek = async () => {
     nextWeekYear += 1
   }
 
-  // Fetch or create the next week
-  const { data: nextWeek, error: nextWeekError } = await supabase
-    .from('weeks')
-    .select('id')
-    .eq('week_nbr', nextWeekNbr)
-    .eq('week_year', nextWeekYear)
-    .maybeSingle()
-
-  if (nextWeekError) {
-    console.error('Error fetching next week:', nextWeekError)
-    return
-  }
-
-  let nextWeekId = nextWeek?.id
+  const nextWeekId = await getWeekId(nextWeekNbr, nextWeekYear)
   if (!nextWeekId) {
-    const { data: newWeek, error: newWeekError } = await supabase
-      .from('weeks')
-      .insert({
-        week_nbr: nextWeekNbr,
-        week_year: nextWeekYear,
-      })
-      .select()
-      .single()
-
-    if (newWeekError || !newWeek) {
-      console.error('Error creating next week:', newWeekError)
-      return
-    }
-
-    nextWeekId = newWeek.id
+    console.error('Error fetching next week ID')
+    return
   }
 
   // Update the meal's week_id to the next week
