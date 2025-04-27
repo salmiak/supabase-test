@@ -8,7 +8,7 @@
     <MealItem
       v-for="meal in meals"
       :key="meal.id"
-      :meal="meal"
+      :mealId="meal.id"
       @delete-meal="deleteMeal(meal.id)"></MealItem>
     
     <AddMealForm :week-id="weekData.id" />

@@ -36,7 +36,7 @@
     </div>
     <!-- Dish selector -->
     <DishSelector
-      :meal-id="meal.id"
+      :meal-id="mealId"
       @dish-added="fetchMeal"
       class="px-1 py-1"
     />
@@ -89,6 +89,12 @@ import DishSelector from '@/components/DishSelector.vue'
 import { supabase } from '../lib/supabaseClient'
 
 const editMode = ref(false)
+const meal = ref({
+  id: '',
+  comment: '',
+  created_at: '',
+  dishes: [],
+})
 
 const toggleEditMode = () => {
   editMode.value = !editMode.value
@@ -97,8 +103,8 @@ const toggleEditMode = () => {
 const saveMeal = async () => {
   const { error } = await supabase
     .from('meals')
-    .update({ comment: props.meal.comment })
-    .eq('id', props.meal.id)
+    .update({ comment: meal.value.comment })
+    .eq('id', props.mealId)
 
   if (error) {
     console.error('Error saving meal:', error)
@@ -108,7 +114,7 @@ const saveMeal = async () => {
 }
 
 const props = defineProps<{
-  meal: any
+  mealId: any
 }>()
 
 const emits = defineEmits<{
@@ -134,7 +140,7 @@ const fetchMeal = async () => {
         )
       )
     `)
-    .eq('id', props.meal.id)
+    .eq('id', props.mealId)
     .single()
 
   if (error) {
@@ -143,8 +149,8 @@ const fetchMeal = async () => {
   }
 
   // Update the meal object with the fetched data
-  props.meal.comment = data.comment
-  props.meal.dishes = data.meal_dishes.map(md => md.dishes)
+  meal.value.comment = data.comment
+  meal.value.dishes = data.meal_dishes.map(md => md.dishes)
 }
 
 const subscribeToMealUpdates = () => {
@@ -155,10 +161,10 @@ const subscribeToMealUpdates = () => {
 
   // Subscribe to real-time updates for the specific meal
   mealChannel = supabase
-    .channel(`realtime:meal:${props.meal.id}`)
+    .channel(`realtime:meal:${props.mealId}`)
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'meals', filter: `id=eq.${props.meal.id}` },
+      { event: '*', schema: 'public', table: 'meals', filter: `id=eq.${props.mealId}` },
       (payload) => {
         console.log('Realtime event for meal:', payload)
 
@@ -179,10 +185,10 @@ const subscribeToMealDishesUpdates = () => {
 
   // Subscribe to real-time updates for the meal_dishes table
   mealDishesChannel = supabase
-    .channel(`realtime:meal_dishes:${props.meal.id}`)
+    .channel(`realtime:meal_dishes:${props.mealId}`)
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'meal_dishes', filter: `meal_id=eq.${props.meal.id}` },
+      { event: '*', schema: 'public', table: 'meal_dishes', filter: `meal_id=eq.${props.mealId}` },
       (payload) => {
         console.log('Realtime event for meal_dishes:', payload)
 
@@ -199,7 +205,7 @@ const deleteDish = async (dishId: string) => {
   const { error } = await supabase
     .from('meal_dishes')
     .delete()
-    .eq('meal_id', props.meal.id)
+    .eq('meal_id', props.mealId)
     .eq('dish_id', dishId)
 
   if (error) {
@@ -212,7 +218,7 @@ const deleteDish = async (dishId: string) => {
 }
 
 const deleteMeal = () => {
-  emits('delete-meal', props.meal.id)
+  emits('delete-meal', props.mealId)
 }
 
 onMounted(() => {
