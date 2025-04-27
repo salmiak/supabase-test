@@ -13,27 +13,29 @@
         <button
           @click="deleteMeal()"
           class="ml-1">
-          radera
+          <Icon name="Trash" />
         </button>
         <button
           @click="saveMeal()"
           class="ml-1">
-          Spara
+          <Icon name="Save" />
         </button>
       </div>
     </div>
 
-    <textarea
-      v-model="meal.comment"
-      class="w-full h-24 p-2 border border-pink-300 rounded-lg m-1"
-      placeholder="Kommentarer om måltiden"></textarea>
+    <div class="m-1">
+      <textarea
+        v-model="meal.comment"
+        class="block w-full h-24 p-2 border border-pink-300 rounded-lg bg-white"
+        placeholder="Kommentarer om måltiden"></textarea>
+    </div>
 
     <div v-if="meal.dishes && meal.dishes.length">
-      <ul>
+      <ul class="border-t border-pink-200">
         <li
           v-for="dish in meal.dishes"
           :key="dish.id"
-          class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-pink-200">
+          class="grid grid-cols-[1fr_34px] items-center px-1 py-2 border-b border-pink-200">
           <div class="px-2">
             <h3 class="font-semibold text-teal-700">
               <a
@@ -49,7 +51,11 @@
               {{ dish.description }}
             </p>
           </div>
-          <button @click="deleteDish(dish.id)">X</button>
+          <button
+            @click="deleteDish(dish.id)"
+            aria-label="Ta bort rätt">
+            <Icon name="Trash" />
+          </button>
         </li>
       </ul>
     </div>
@@ -74,16 +80,19 @@
       <div class="flex">
         <button
           @click="moveMealToPrevWeek"
+          :aria-label="`Flytta ${meal.title} till föregående vecka`"
           class="m-1">
           <Icon name="ArrowLeft" />
         </button>
         <button
           @click="toggleEditMode()"
+          :aria-label="`Redigera måltid: ${meal.title}`"
           class="m-1">
           <Icon name="Edit" />
         </button>
         <button
           @click="moveMealToNextWeek"
+          :aria-label="`Flytta ${meal.title} till nästa vecka`"
           class="m-1">
           <Icon name="ArrowRight" />
         </button>

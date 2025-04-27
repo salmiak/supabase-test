@@ -1,6 +1,11 @@
 <template>
   <h1>
-    <RouterLink :to="prevWeekRoute">&larr;</RouterLink>
+    <RouterLink :to="prevWeekRoute"
+      ><Icon
+        name="ArrowLeft"
+        strokeWidth="3"
+        size="20"
+    /></RouterLink>
     <RouterLink
       v-if="isCurrentWeek"
       :to="nextWeekRoute">
@@ -11,11 +16,17 @@
       to="/"
       >Vecka {{ weekNbr }}</RouterLink
     >
-    <RouterLink :to="nextWeekRoute">&rarr;</RouterLink>
+    <RouterLink :to="nextWeekRoute"
+      ><Icon
+        name="ArrowRight"
+        strokeWidth="3"
+        size="20"
+    /></RouterLink>
   </h1>
 </template>
 
 <script setup lang="ts">
+import Icon from '@/components/Icon.vue'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
