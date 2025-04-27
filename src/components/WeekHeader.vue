@@ -3,8 +3,8 @@
     <RouterLink :to="prevWeekRoute"
       ><Icon
         name="ArrowLeft"
-        strokeWidth="3"
-        size="20"
+        :strokeWidth="3"
+        :size="20"
     /></RouterLink>
     <RouterLink
       v-if="isCurrentWeek"
@@ -19,8 +19,8 @@
     <RouterLink :to="nextWeekRoute"
       ><Icon
         name="ArrowRight"
-        strokeWidth="3"
-        size="20"
+        :strokeWidth="3"
+        :size="20"
     /></RouterLink>
   </h1>
 </template>
