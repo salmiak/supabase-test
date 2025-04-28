@@ -3,7 +3,7 @@
     class="m-1"
     @click="toggleEaten()">
     <Icon
-      name="Square"
+      :name="meal.is_eaten ? 'CheckSquare' : 'Square'"
       :aria-label="`${meal.title} är ej avprickad`" />
   </button>
 </template>
