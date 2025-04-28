@@ -37,7 +37,7 @@ npm run build
 [x] Search dish from server when adding to meal
 [] Make it possible to upload one or more images to a dish
 [x] Move meal to another (next or previous) week
-[] Mark meal as eaten
+[x] Mark meal as eaten
 [] Slide-actions (touch interactions)
 [] Markdown support
 [] Move Delete-meal to meal component

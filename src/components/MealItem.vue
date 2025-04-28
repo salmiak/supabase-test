@@ -69,13 +69,7 @@
   <div
     v-else-if="meal.is_eaten"
     class="flex bg-teal-200 text-teal-600 m-2 rounded-xl overflow-hidden">
-    <button
-      class="m-1"
-      @click="toggleEaten()">
-      <Icon
-        name="CheckSquare"
-        :aria-label="`${meal.title} är avprickad`" />
-    </button>
+    <MealEatenToggle :meal="meal" />
     <h2
       class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
       {{ meal.title }}
@@ -88,13 +82,7 @@
     <div
       class="flex justify-between items-start bg-teal-100 border-b border-b-teal-200">
       <div class="flex text-teal-600 m-0 rounded-xl overflow-hidden">
-        <button
-          class="m-1"
-          @click="toggleEaten()">
-          <Icon
-            name="Square"
-            :aria-label="`${meal.title} är ej avprickad`" />
-        </button>
+        <MealEatenToggle :meal="meal" />
         <h2
           class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
           {{ meal.title }}
@@ -160,6 +148,7 @@
 import Icon from '@/components/Icon.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
+import MealEatenToggle from '@/components/MealEatenToggle.vue'
 import { supabase } from '../lib/supabaseClient'
 
 const editMode = ref(false)
@@ -243,6 +232,7 @@ const fetchMeal = async () => {
   }
 
   // Update the meal object with the fetched data
+  meal.value.id = data.id
   meal.value.title = data.title
   meal.value.comment = data.comment
   meal.value.is_eaten = data.is_eaten
@@ -461,18 +451,5 @@ const moveMealToPrevWeek = async () => {
 
   console.log('Meal moved to prev week successfully')
   emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
-}
-
-const toggleEaten = async () => {
-  const { error } = await supabase
-    .from('meals')
-    .update({ is_eaten: !meal.value.is_eaten })
-    .eq('id', props.mealId)
-
-  if (error) {
-    console.error('Error toggling meal eaten status:', error)
-  } else {
-    meal.value.is_eaten = !meal.value.is_eaten
-  }
 }
 </script>
