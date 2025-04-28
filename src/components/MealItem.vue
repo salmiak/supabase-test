@@ -148,6 +148,16 @@ import MealMoveWeek from '@/components/MealMoveWeek.vue'
 import MealDelete from '@/components/MealDelete.vue'
 import { supabase } from '../lib/supabaseClient'
 
+/* -------------------- Props and Emits -------------------- */
+const props = defineProps<{
+  mealId: string
+}>()
+
+const emits = defineEmits<{
+  (e: 'remove-meal', mealId: string): void
+}>()
+
+/* -------------------- Reactive State -------------------- */
 const editMode = ref(false)
 
 const meal = ref({
@@ -163,10 +173,17 @@ const meal = ref({
   },
 })
 
+let mealChannel: any = null // Store the real-time channel reference
+let mealDishesChannel: any = null // Store the real-time channel for meal_dishes
+
+/* -------------------- Methods -------------------- */
+
+// Toggles edit mode for the meal
 const toggleEditMode = () => {
   editMode.value = !editMode.value
 }
 
+// Saves the meal's updated title and comment
 const saveMeal = async () => {
   const { error } = await supabase
     .from('meals')
@@ -183,17 +200,24 @@ const saveMeal = async () => {
   }
 }
 
-const props = defineProps<{
-  mealId: any
-}>()
+// Deletes a dish from the meal
+const deleteDish = async (dishId: string) => {
+  const { error } = await supabase
+    .from('meal_dishes')
+    .delete()
+    .eq('meal_id', props.mealId)
+    .eq('dish_id', dishId)
 
-const emits = defineEmits<{
-  (e: 'remove-meal', mealId: string): void
-}>()
+  if (error) {
+    console.error('Error deleting dish:', error)
+    return
+  }
 
-let mealChannel: any = null // Store the real-time channel reference
-let mealDishesChannel: any = null // Store the real-time channel for meal_dishes
+  // Refresh the meal data after deleting the dish
+  await fetchMeal()
+}
 
+// Fetches the meal data from the server
 const fetchMeal = async () => {
   const { data, error } = await supabase
     .from('meals')
@@ -236,13 +260,21 @@ const fetchMeal = async () => {
   meal.value.week = Array.isArray(data.week_id) ? data.week_id[0] : data.week_id
 }
 
+// Handles the removal of the meal (e.g., when moved to another week)
+const mealRemoved = () => {
+  console.log('Meal moved to another week')
+  emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
+}
+
+/* -------------------- Real-Time Subscriptions -------------------- */
+
+// Subscribes to real-time updates for the meal
 const subscribeToMealUpdates = () => {
   // Unsubscribe from any existing channel to avoid duplicates
   if (mealChannel) {
     mealChannel.unsubscribe()
   }
 
-  // Subscribe to real-time updates for the specific meal
   mealChannel = supabase
     .channel(`realtime:meal:${props.mealId}`)
     .on(
@@ -270,13 +302,13 @@ const subscribeToMealUpdates = () => {
     .subscribe()
 }
 
+// Subscribes to real-time updates for the meal_dishes table
 const subscribeToMealDishesUpdates = () => {
   // Unsubscribe from any existing channel to avoid duplicates
   if (mealDishesChannel) {
     mealDishesChannel.unsubscribe()
   }
 
-  // Subscribe to real-time updates for the meal_dishes table
   mealDishesChannel = supabase
     .channel(`realtime:meal_dishes:${props.mealId}`)
     .on(
@@ -299,28 +331,16 @@ const subscribeToMealDishesUpdates = () => {
     .subscribe()
 }
 
-const deleteDish = async (dishId: string) => {
-  const { error } = await supabase
-    .from('meal_dishes')
-    .delete()
-    .eq('meal_id', props.mealId)
-    .eq('dish_id', dishId)
+/* -------------------- Lifecycle Hooks -------------------- */
 
-  if (error) {
-    console.error('Error deleting dish:', error)
-    return
-  }
-
-  // Refresh the meal data after deleting the dish
-  await fetchMeal()
-}
-
+// Called when the component is mounted
 onMounted(() => {
   fetchMeal()
   subscribeToMealUpdates()
   subscribeToMealDishesUpdates()
 })
 
+// Called when the component is unmounted
 onUnmounted(() => {
   // Unsubscribe from the real-time channels when the component is unmounted
   if (mealChannel) {
@@ -330,9 +350,4 @@ onUnmounted(() => {
     mealDishesChannel.unsubscribe()
   }
 })
-
-const mealRemoved = () => {
-  console.log('Meal moved to another week')
-  emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
-}
 </script>
