@@ -10,11 +10,10 @@
         placeholder="Måltidens namn" />
 
       <div class="flex m-1">
-        <button
-          @click="deleteMeal()"
-          class="ml-1">
-          <Icon name="Trash" />
-        </button>
+        <MealDelete
+          :meal-id="meal.id"
+          @meal-deleted="mealRemoved"
+          class="ml-1" />
         <button
           @click="saveMeal()"
           class="ml-1">
@@ -93,7 +92,7 @@
         <MealMoveWeek
           :meal="meal"
           dir="prev"
-          @meal-moved="mealMoved" />
+          @meal-moved="mealRemoved" />
         <button
           @click="toggleEditMode()"
           :aria-label="`Redigera måltid: ${meal.title}`"
@@ -103,7 +102,7 @@
         <MealMoveWeek
           :meal="meal"
           dir="next"
-          @meal-moved="mealMoved" />
+          @meal-moved="mealRemoved" />
       </div>
     </div>
 
@@ -146,6 +145,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import MealEatenToggle from '@/components/MealEatenToggle.vue'
 import MealMoveWeek from '@/components/MealMoveWeek.vue'
+import MealDelete from '@/components/MealDelete.vue'
 import { supabase } from '../lib/supabaseClient'
 
 const editMode = ref(false)
@@ -188,7 +188,6 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'delete-meal', mealId: string): void
   (e: 'remove-meal', mealId: string): void
 }>()
 
@@ -316,10 +315,6 @@ const deleteDish = async (dishId: string) => {
   await fetchMeal()
 }
 
-const deleteMeal = () => {
-  emits('delete-meal', props.mealId)
-}
-
 onMounted(() => {
   fetchMeal()
   subscribeToMealUpdates()
@@ -336,7 +331,7 @@ onUnmounted(() => {
   }
 })
 
-const mealMoved = () => {
+const mealRemoved = () => {
   console.log('Meal moved to another week')
   emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
 }

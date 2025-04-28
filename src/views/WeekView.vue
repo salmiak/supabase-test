@@ -11,7 +11,6 @@
       v-for="meal in meals"
       :key="meal.id"
       :mealId="meal.id"
-      @delete-meal="deleteMeal(meal.id)"
       @remove-meal="removeMeal(meal.id)"></MealItem>
 
     <AddMealForm :week-id="weekData.id" />
@@ -171,16 +170,6 @@ const createNewWeek = async (newWeekYear: number, newWeekNumber: number) => {
   fetchWeekData()
 }
 
-const deleteMeal = async (mealId: string) => {
-  if (!confirm('Are you sure you want to delete this meal?')) return
-
-  const { error } = await supabase.from('meals').delete().eq('id', mealId)
-
-  if (error) {
-    console.error('Failed to delete meal:', error)
-    return
-  }
-}
 const removeMeal = async (mealId: string) => {
   meals.value = meals.value.filter((meal) => meal.id !== mealId)
 }
