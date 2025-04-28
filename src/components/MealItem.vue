@@ -69,13 +69,13 @@
   <div
     v-else-if="meal.is_eaten"
     class="flex bg-teal-200 text-teal-600 m-2 rounded-xl overflow-hidden">
-    <div
-      class="p-3"
+    <button
+      class="m-1"
       @click="toggleEaten()">
       <Icon
         name="CheckSquare"
-        aria-label="Måltiden är avprickad" />
-    </div>
+        :aria-label="`${meal.title} är avprickad`" />
+    </button>
     <h2
       class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
       {{ meal.title }}
@@ -88,13 +88,13 @@
     <div
       class="flex justify-between items-start bg-teal-100 border-b border-b-teal-200">
       <div class="flex text-teal-600 m-0 rounded-xl overflow-hidden">
-        <div
-          class="p-3"
+        <button
+          class="m-1"
           @click="toggleEaten()">
           <Icon
             name="Square"
-            aria-label="Måltiden är avprickad" />
-        </div>
+            :aria-label="`${meal.title} är ej avprickad`" />
+        </button>
         <h2
           class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
           {{ meal.title }}

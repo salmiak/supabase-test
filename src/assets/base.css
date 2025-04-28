@@ -9,6 +9,6 @@ button {
   text-teal-600
   text-xs/5 font-semibold font-stretch-ultra-expanded tracking-widest uppercase
   text-center
-  border-1 border-pink-300 rounded-lg
+  rounded-lg
   hover:bg-teal-300;
 }
