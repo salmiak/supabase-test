@@ -67,15 +67,39 @@
   </div>
 
   <div
+    v-else-if="meal.is_eaten"
+    class="flex bg-teal-200 text-teal-600 m-2 rounded-xl overflow-hidden">
+    <div
+      class="p-3"
+      @click="toggleEaten()">
+      <Icon
+        name="CheckSquare"
+        aria-label="Måltiden är avprickad" />
+    </div>
+    <h2
+      class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
+      {{ meal.title }}
+    </h2>
+  </div>
+
+  <div
     v-else
     class="bg-teal-50 m-2 rounded-xl shadow-sm overflow-hidden">
     <div
       class="flex justify-between items-start bg-teal-100 border-b border-b-teal-200">
-      <h2
-        v-if="meal.title"
-        class="text-base/5 font-semibold text-teal-600 py-3 px-3 font-stretch-expanded tracking-widest">
-        {{ meal.title }}
-      </h2>
+      <div class="flex text-teal-600 m-0 rounded-xl overflow-hidden">
+        <div
+          class="p-3"
+          @click="toggleEaten()">
+          <Icon
+            name="Square"
+            aria-label="Måltiden är avprickad" />
+        </div>
+        <h2
+          class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
+          {{ meal.title }}
+        </h2>
+      </div>
 
       <div class="flex">
         <button
@@ -144,6 +168,7 @@ const meal = ref({
   id: '',
   title: '',
   comment: '',
+  is_eaten: false,
   dishes: [],
   week: {
     id: '',
@@ -192,6 +217,7 @@ const fetchMeal = async () => {
       id,
       title,
       comment,
+      is_eaten,
       created_at,
       week_id (
         id,
@@ -219,6 +245,7 @@ const fetchMeal = async () => {
   // Update the meal object with the fetched data
   meal.value.title = data.title
   meal.value.comment = data.comment
+  meal.value.is_eaten = data.is_eaten
   meal.value.dishes = data.meal_dishes.map((md) => md.dishes)
   meal.value.week = Array.isArray(data.week_id) ? data.week_id[0] : data.week_id
 }
@@ -434,5 +461,18 @@ const moveMealToPrevWeek = async () => {
 
   console.log('Meal moved to prev week successfully')
   emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
+}
+
+const toggleEaten = async () => {
+  const { error } = await supabase
+    .from('meals')
+    .update({ is_eaten: !meal.value.is_eaten })
+    .eq('id', props.mealId)
+
+  if (error) {
+    console.error('Error toggling meal eaten status:', error)
+  } else {
+    meal.value.is_eaten = !meal.value.is_eaten
+  }
 }
 </script>
