@@ -262,7 +262,6 @@ const fetchMeal = async () => {
 
 // Handles the removal of the meal (e.g., when moved to another week)
 const mealRemoved = () => {
-  console.log('Meal moved to another week')
   emits('remove-meal', props.mealId) // Notify parent to remove the meal from the current week
 }
 
