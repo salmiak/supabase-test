@@ -1,7 +1,11 @@
 <template>
   <WeekHeader></WeekHeader>
 
-  <div v-if="loading">Loading meals...</div>
+  <div
+    v-if="loading"
+    class="m-3 text-center text-lg font-semibold font-stretch-ultra-expanded text-teal-500">
+    Loading meals...
+  </div>
   <div
     v-else
     class="meal-list">
