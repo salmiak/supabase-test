@@ -3,10 +3,17 @@
 
   <AddMealForm :week-id="weekData.id" />
 
-  <div
-    v-if="loading"
-    class="m-3 text-center text-lg font-semibold font-stretch-ultra-expanded text-teal-500">
-    Laddar vecka...
+  <div v-if="loading">
+    <div class="flex flex-col items-center mx-3 my-8 text-teal-500">
+      <Icon
+        name="Clock"
+        class="animate-spin"
+        :size="36" />
+      <div
+        class="m-3 text-center text-lg font-semibold font-stretch-ultra-expanded">
+        Laddar vecka...
+      </div>
+    </div>
   </div>
   <div
     v-else
