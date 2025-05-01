@@ -71,7 +71,7 @@
     <MealEatenToggle :meal="meal" />
     <h2
       class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
-      {{ meal.title || 'Namnlös måltid' }}
+      {{ mealTitle }}
     </h2>
   </div>
 
@@ -84,7 +84,7 @@
         <MealEatenToggle :meal="meal" />
         <h2
           class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
-          {{ meal.title || 'Namnlös måltid' }}
+          {{ mealTitle }}
         </h2>
       </div>
 
@@ -141,7 +141,7 @@
 
 <script setup lang="ts">
 import Icon from '@/components/Icon.vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import MealEatenToggle from '@/components/MealEatenToggle.vue'
 import MealMoveWeek from '@/components/MealMoveWeek.vue'
@@ -175,6 +175,11 @@ const meal = ref({
 
 let mealChannel: any = null // Store the real-time channel reference
 let mealDishesChannel: any = null // Store the real-time channel for meal_dishes
+
+const mealTitle = computed(() => {
+  const dishTitles = meal.value.dishes.map((dish) => dish.title).join(', ')
+  return meal.value.title || dishTitles || 'Namnlös måltid'
+})
 
 /* -------------------- Methods -------------------- */
 

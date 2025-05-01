@@ -34,8 +34,9 @@ npm run build
 [] Make it possible to upload one or more images to a dish
 [] Slide-actions (touch interactions)
 [] Markdown support
-[] Footer design
+[] Empty meals shall only show for the user who created it
 
+[x] Footer design
 [x] Move Delete-meal to meal component
 [x] Move meal to another (next or previous) week
 [x] Mark meal as eaten

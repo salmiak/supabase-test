@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import { supabase } from '../lib/supabaseClient'
-import Icon from '@/components/Icon.vue'
 
 const props = defineProps<{
   weekId: string
