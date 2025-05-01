@@ -1,16 +1,16 @@
 <template>
   <WeekHeader></WeekHeader>
 
+  <AddMealForm :week-id="weekData.id" />
+
   <div
     v-if="loading"
     class="m-3 text-center text-lg font-semibold font-stretch-ultra-expanded text-teal-500">
-    Loading meals...
+    Laddar vecka...
   </div>
   <div
     v-else
     class="meal-list">
-    <AddMealForm :week-id="weekData.id" />
-
     <div
       v-if="meals.length === 0"
       class="flex flex-col items-center mx-3 my-8 text-teal-500">

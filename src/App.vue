@@ -28,20 +28,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <nav class="grid grid-cols-2">
-    <RouterLink
-      to="/"
-      :class="{ active: $route.name === 'WeekView' }"
-      >Planering</RouterLink
-    >
-    <RouterLink to="/dishes">Recept</RouterLink>
-  </nav>
+  <div
+    class="grid content-stretch items-start grid-rows-[1.75rem_1fr_2.5rem] min-h-screen">
+    <nav class="grid grid-cols-2">
+      <RouterLink
+        to="/"
+        :class="{ active: $route.name === 'WeekView' }"
+        >Planering</RouterLink
+      >
+      <RouterLink to="/dishes">Recept</RouterLink>
+    </nav>
 
-  <!--<WeekList class="w-64" /> -->
-  <main>
-    <RouterView />
-  </main>
-  <footer>
-    <button @click="handleLogout">Logga ut</button>
-  </footer>
+    <!--<WeekList class="w-64" /> -->
+    <main>
+      <RouterView />
+    </main>
+    <footer class="bg-teal-700 h-10 p-2 text-center text-teal-100">
+      <div
+        @click="handleLogout"
+        class="cursor-pointer hover:text-teal-300 font-semibold">
+        Logga ut
+      </div>
+    </footer>
+  </div>
 </template>

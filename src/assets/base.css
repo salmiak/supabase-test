@@ -1,7 +1,15 @@
 @import 'tailwindcss';
 
 html {
+  @apply bg-teal-700;
+}
+
+body {
   @apply bg-teal-300;
+}
+
+#app {
+  min-height: 100vh;
 }
 
 button {
