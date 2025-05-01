@@ -25,7 +25,7 @@
     <div class="m-1">
       <textarea
         v-model="meal.comment"
-        class="block w-full h-24 p-2 border border-pink-300 rounded-lg bg-white"
+        class="block w-full field-sizing-content text-sm p-2 border border-pink-300 rounded-lg bg-white"
         placeholder="Kommentarer om måltiden"></textarea>
     </div>
 
