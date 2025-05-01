@@ -84,7 +84,7 @@ const fetchWeekData = async () => {
     .from('meals')
     .select('id')
     .eq('week_id', week.id)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
 
   if (error) {
     console.error(error)
@@ -118,7 +118,7 @@ const subscribeToMealUpdates = (weekId: string) => {
         console.log('Realtime event in WeekView:', payload)
 
         if (payload.eventType === 'INSERT' && payload.new.week_id === weekId) {
-          meals.value.push(payload.new)
+          meals.value.unshift(payload.new)
         } else if (payload.eventType === 'UPDATE') {
           const index = meals.value.findIndex(
             (meal) => meal.id === payload.new.id

@@ -11,7 +11,7 @@
 
       <div class="flex m-1">
         <MealDelete
-          :meal-id="meal.id"
+          :meal="meal"
           @meal-deleted="mealRemoved"
           class="ml-1" />
         <button
@@ -71,7 +71,7 @@
     <MealEatenToggle :meal="meal" />
     <h2
       class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
-      {{ meal.title }}
+      {{ meal.title || 'Namnlös måltid' }}
     </h2>
   </div>
 
@@ -84,7 +84,7 @@
         <MealEatenToggle :meal="meal" />
         <h2
           class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
-          {{ meal.title }}
+          {{ meal.title || 'Namnlös måltid' }}
         </h2>
       </div>
 
@@ -258,6 +258,10 @@ const fetchMeal = async () => {
   meal.value.is_eaten = data.is_eaten
   meal.value.dishes = data.meal_dishes.map((md) => md.dishes)
   meal.value.week = Array.isArray(data.week_id) ? data.week_id[0] : data.week_id
+
+  editMode.value =
+    editMode.value ||
+    (!meal.value.title && !meal.value.comment && meal.value.dishes.length === 0)
 }
 
 // Handles the removal of the meal (e.g., when moved to another week)
