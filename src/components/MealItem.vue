@@ -11,7 +11,7 @@
 
       <div class="flex m-1">
         <MealDelete
-          :meal-id="meal.id"
+          :meal="meal"
           @meal-deleted="mealRemoved"
           class="ml-1" />
         <button
@@ -25,7 +25,7 @@
     <div class="m-1">
       <textarea
         v-model="meal.comment"
-        class="block w-full h-24 p-2 border border-pink-300 rounded-lg bg-white"
+        class="block w-full field-sizing-content text-sm p-2 border border-pink-300 rounded-lg bg-white"
         placeholder="Kommentarer om måltiden"></textarea>
     </div>
 
@@ -71,7 +71,7 @@
     <MealEatenToggle :meal="meal" />
     <h2
       class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
-      {{ meal.title }}
+      {{ mealTitle }}
     </h2>
   </div>
 
@@ -84,7 +84,7 @@
         <MealEatenToggle :meal="meal" />
         <h2
           class="text-base/4 font-semibold font-stretch-expanded tracking-widest py-3 px-2">
-          {{ meal.title }}
+          {{ mealTitle }}
         </h2>
       </div>
 
@@ -141,7 +141,7 @@
 
 <script setup lang="ts">
 import Icon from '@/components/Icon.vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
 import MealEatenToggle from '@/components/MealEatenToggle.vue'
 import MealMoveWeek from '@/components/MealMoveWeek.vue'
@@ -175,6 +175,11 @@ const meal = ref({
 
 let mealChannel: any = null // Store the real-time channel reference
 let mealDishesChannel: any = null // Store the real-time channel for meal_dishes
+
+const mealTitle = computed(() => {
+  const dishTitles = meal.value.dishes.map((dish) => dish.title).join(', ')
+  return meal.value.title || dishTitles || 'Namnlös måltid'
+})
 
 /* -------------------- Methods -------------------- */
 
@@ -258,6 +263,10 @@ const fetchMeal = async () => {
   meal.value.is_eaten = data.is_eaten
   meal.value.dishes = data.meal_dishes.map((md) => md.dishes)
   meal.value.week = Array.isArray(data.week_id) ? data.week_id[0] : data.week_id
+
+  editMode.value =
+    editMode.value ||
+    (!meal.value.title && !meal.value.comment && meal.value.dishes.length === 0)
 }
 
 // Handles the removal of the meal (e.g., when moved to another week)
