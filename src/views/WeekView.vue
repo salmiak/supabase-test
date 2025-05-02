@@ -1,7 +1,9 @@
 <template>
   <WeekHeader></WeekHeader>
 
-  <AddMealForm :week-id="weekData.id" />
+  <AddMealForm
+    :week-id="weekData.id"
+    @meal-added="fetchWeekData" />
 
   <div v-if="loading">
     <div class="flex flex-col items-center mx-3 my-8 text-teal-500">
