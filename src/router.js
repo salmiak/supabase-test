@@ -1,5 +1,10 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import { supabase } from './lib/supabaseClient'
+import WeekView from '@/views/WeekView.vue'
+import DishListView from '@/views/DishListView.vue'
+import LoginView from '@/views/LoginView.vue'
+
+const base = import.meta.env.MODE === 'production' ? '/supabase-test/' : '/'
 
 function getISOWeekInfo(date = new Date()) {
   // Copy the date to avoid mutating the original
@@ -23,7 +28,7 @@ function getISOWeekInfo(date = new Date()) {
 const routes = [
   {
     path: '/login',
-    component: () => import('@/views/LoginView.vue'),
+    component: LoginView,
     name: 'Login',
   },
   {
@@ -37,19 +42,19 @@ const routes = [
   {
     path: '/:week_year/:week_nbr',
     name: 'WeekView',
-    component: () => import('@/views/WeekView.vue'),
+    component: WeekView,
     meta: { requiresAuth: true },
   },
   {
     path: '/dishes',
     name: 'dishes',
-    component: () => import('@/views/DishListView.vue'),
+    component: DishListView,
     meta: { requiresAuth: true },
   },
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(base),
   routes,
 })
 
