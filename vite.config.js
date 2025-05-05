@@ -6,12 +6,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
-export default defineConfig({
-  base: '/supabase-test/',
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/supabase-test/' : '/',
   plugins: [vue(), vueDevTools(), tailwindcss()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-})
+}))
