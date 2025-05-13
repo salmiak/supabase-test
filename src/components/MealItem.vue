@@ -132,6 +132,14 @@
             <p class="text-sm text-gray-600">
               {{ dish.description }}
             </p>
+            <div
+              v-if="dish.images?.length"
+              class="flex mt-2 mb-1">
+              <img
+                v-for="img in dish.images"
+                :src="img.image_url"
+                class="w-28 h-28 rounded object-cover mr-2" />
+            </div>
           </div>
         </li>
       </ul>
@@ -243,7 +251,8 @@ const fetchMeal = async () => {
           id,
           title,
           description,
-          recipe_url
+          recipe_url,
+            images:dish_images(image_url)
         )
       )
     `
