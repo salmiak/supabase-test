@@ -11,6 +11,12 @@
           :key="dish.id">
           <h2>{{ dish.title }}</h2>
           <p>{{ dish.description }}</p>
+          <div v-if="dish.images?.length">
+            <img
+              v-for="img in dish.images"
+              :src="img.image_url"
+              class="w-32 h-32 object-cover mr-2" />
+          </div>
           <a
             v-if="dish.recipe_url"
             :href="dish.recipe_url"
@@ -38,6 +44,20 @@
           type="text"
           required />
       </div>
+      <input
+        type="file"
+        @change="handleFileUpload"
+        multiple />
+      <div v-if="imagePreviews.length">
+        <h4 class="mt-4 mb-2">Preview:</h4>
+        <div class="flex gap-4">
+          <img
+            v-for="url in imagePreviews"
+            :key="url"
+            :src="url"
+            class="w-24 h-24 object-cover border rounded" />
+        </div>
+      </div>
       <div>
         <label for="description">Description</label>
         <textarea
@@ -63,6 +83,8 @@
 </template>
 
 <script setup lang="ts">
+import imageCompression from 'browser-image-compression'
+
 import { ref, onMounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
@@ -80,7 +102,7 @@ const fetchDishes = async () => {
 
   const { data, error } = await supabase
     .from('dishes')
-    .select('id, title, description, recipe_url')
+    .select('id, title, description, recipe_url, images:dish_images(image_url)')
 
   if (error) {
     console.error('Error fetching dishes:', error)
@@ -89,6 +111,17 @@ const fetchDishes = async () => {
   }
 
   loading.value = false
+}
+
+const files = ref<File[]>([])
+const imagePreviews = ref<string[]>([])
+
+const handleFileUpload = (e: Event) => {
+  const input = e.target as HTMLInputElement
+  if (input.files) {
+    files.value = Array.from(input.files)
+    imagePreviews.value = files.value.map((file) => URL.createObjectURL(file))
+  }
 }
 
 const addDish = async () => {
@@ -109,23 +142,51 @@ const addDish = async () => {
     return
   }
 
-  const { data, error } = await supabase
+  const { data: dish, error: insertError } = await supabase
     .from('dishes')
     .insert({
       ...newDish.value,
       family_id: profile.family_id,
     })
-    .select('id, title, description, recipe_url')
+    .select('id, title, description, recipe_url, images:dish_images(image_url)')
     .single()
 
-  if (error) {
-    console.error('Error adding dish:', error)
+  if (insertError) {
+    console.error('Error adding dish:', insertError)
     return
   }
 
+  for (const file of files.value) {
+    const compressedFile = await imageCompression(file, {
+      maxWidthOrHeight: 1500,
+      maxSizeMB: 1,
+    })
+
+    const path = `${profile.family_id}/${dish.id}/${file.name}`
+    const { error } = await supabase.storage
+      .from('dish-images')
+      .upload(path, compressedFile)
+
+    if (error) console.error('Upload failed:', error)
+
+    const publicUrl = supabase.storage.from('dish-images').getPublicUrl(path)
+      .data.publicUrl
+
+    // Optional: store public URL in dish_images table
+    await supabase
+      .from('dish_images')
+      .insert({ dish_id: dish.id, image_url: publicUrl })
+
+    // Update the dish object with the new image URL
+    dish.images = dish.images || []
+    dish.images.push({ image_url: publicUrl })
+  }
+
   // Refresh the dish list and reset the form
-  await dishes.value.push(data)
+  await dishes.value.push(dish)
   newDish.value = { title: '', description: '', recipe_url: '' }
+  files.value = []
+  imagePreviews.value = []
   showAddDishForm.value = false
 }
 
@@ -145,19 +206,3 @@ const deleteDish = async (dishId: string) => {
 
 onMounted(fetchDishes)
 </script>
-
-<style scoped>
-/* h1 {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  font-size: 1rem;
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.05rem;
-  margin: 0;
-  background: var(--background-5);
-  color: var(--background-1);
-  padding: 0.5rem 1rem;
-} */
-</style>
