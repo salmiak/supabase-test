@@ -1,21 +1,36 @@
 <template>
   <div v-if="loading">Laddar recept</div>
-  <div v-else>
-    <h2>{{ dish.title }}</h2>
-    <p>{{ dish.description }}</p>
-    <div v-if="dish.images?.length">
-      <img
-        v-for="img in dish.images"
-        :src="img.image_url"
-        class="w-32 h-32 object-cover mr-2" />
+  <div
+    v-else
+    class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
+    <div class="px-2">
+      <h3 class="font-semibold text-teal-700">
+        <a
+          class="text-pink-500 underline"
+          v-if="dish.recipe_url"
+          :href="dish.recipe_url"
+          target="_blank"
+          >{{ dish.title }}</a
+        >
+        <span v-else> {{ dish.title }}</span>
+      </h3>
+      <p class="text-sm text-gray-600">
+        {{ dish.description }}
+      </p>
+      <div
+        v-if="dish.images?.length"
+        class="flex mt-2 mb-1">
+        <img
+          v-for="img in dish.images"
+          :src="img.image_url"
+          class="w-28 h-28 rounded object-cover mr-2" />
+      </div>
+      <button
+        v-if="showDelete"
+        @click="deleteDish(dish.id)">
+        🗑 Delete
+      </button>
     </div>
-    <a
-      v-if="dish.recipe_url"
-      :href="dish.recipe_url"
-      target="_blank"
-      >View Recipe</a
-    >
-    <button @click="deleteDish(dish.id)">🗑 Delete</button>
   </div>
 </template>
 
@@ -26,6 +41,7 @@ import { supabase } from '../lib/supabaseClient'
 /* -------------------- Props and Emits -------------------- */
 const props = defineProps<{
   dishId: string
+  showDelete: boolean
 }>()
 
 const emits = defineEmits<{

@@ -8,9 +8,11 @@
       <ul>
         <li
           v-for="dish in dishes"
-          :key="dish.id">
+          :key="dish.id"
+          class="flex bg-teal-50 text-teal-600 m-2 rounded-xl overflow-hidden">
           <DishItem
             :dishId="dish.id"
+            :showDelete="true"
             @remove-dish="removeDish(dish.id)" />
         </li>
       </ul>
