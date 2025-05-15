@@ -30,17 +30,4 @@ npm run build
 
 ## Todo
 
-[] Create dish when creating or editing a meal
-[] Make it possible to upload one or more images to a dish
-[] Slide-actions (touch interactions)
-[] Markdown support
-[] Empty meals shall only show for the user who created it
-
-[x] Footer design
-[x] Move Delete-meal to meal component
-[x] Move meal to another (next or previous) week
-[x] Mark meal as eaten
-[x] Search dish from server when adding to meal
-[x] Make meal-dish it's own component that fetches from server
-[x] Listen to channel for each meal and dish
-[x] Edit-mode of meal
+Moved into GitHub issues
