@@ -83,6 +83,8 @@
 </template>
 
 <script setup lang="ts">
+import imageCompression from 'browser-image-compression'
+
 import { ref, onMounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
@@ -154,12 +156,16 @@ const addDish = async () => {
     return
   }
 
-  // Step 2: Upload images
   for (const file of files.value) {
+    const compressedFile = await imageCompression(file, {
+      maxWidthOrHeight: 1500,
+      maxSizeMB: 1,
+    })
+
     const path = `${profile.family_id}/${dish.id}/${file.name}`
     const { error } = await supabase.storage
       .from('dish-images')
-      .upload(path, file)
+      .upload(path, compressedFile)
 
     if (error) console.error('Upload failed:', error)
 
