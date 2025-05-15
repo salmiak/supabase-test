@@ -8,22 +8,12 @@
       <ul>
         <li
           v-for="dish in dishes"
-          :key="dish.id">
-          <h2>{{ dish.title }}</h2>
-          <p>{{ dish.description }}</p>
-          <div v-if="dish.images?.length">
-            <img
-              v-for="img in dish.images"
-              :src="img.image_url"
-              class="w-32 h-32 object-cover mr-2" />
-          </div>
-          <a
-            v-if="dish.recipe_url"
-            :href="dish.recipe_url"
-            target="_blank"
-            >View Recipe</a
-          >
-          <button @click="deleteDish(dish.id)">🗑 Delete</button>
+          :key="dish.id"
+          class="flex bg-teal-50 text-teal-600 m-2 rounded-xl overflow-hidden">
+          <DishItem
+            :dishId="dish.id"
+            :showDelete="true"
+            @remove-dish="removeDish(dish.id)" />
         </li>
       </ul>
     </div>
@@ -62,8 +52,7 @@
         <label for="description">Description</label>
         <textarea
           v-model="newDish.description"
-          id="description"
-          required></textarea>
+          id="description"></textarea>
       </div>
       <div>
         <label for="recipe_url">Recipe URL</label>
@@ -84,10 +73,12 @@
 
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
-
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
+import DishItem from '@/components/DishItem.vue'
+
+/* -------------------- Reactive State -------------------- */
 const dishes = ref<any[]>([])
 const loading = ref(true)
 const showAddDishForm = ref(false)
@@ -97,12 +88,15 @@ const newDish = ref({
   recipe_url: '',
 })
 
+let dishesChannel: any = null // Store the real-time channel reference
+
+/* -------------------- Methods -------------------- */
+
+// Fetches the list of dishes from the server
 const fetchDishes = async () => {
   loading.value = true
 
-  const { data, error } = await supabase
-    .from('dishes')
-    .select('id, title, description, recipe_url, images:dish_images(image_url)')
+  const { data, error } = await supabase.from('dishes').select('id')
 
   if (error) {
     console.error('Error fetching dishes:', error)
@@ -113,6 +107,7 @@ const fetchDishes = async () => {
   loading.value = false
 }
 
+// Handles file uploads for dish images
 const files = ref<File[]>([])
 const imagePreviews = ref<string[]>([])
 
@@ -124,6 +119,7 @@ const handleFileUpload = (e: Event) => {
   }
 }
 
+// Adds a new dish to the database
 const addDish = async () => {
   // get current user
   const {
@@ -183,26 +179,65 @@ const addDish = async () => {
   }
 
   // Refresh the dish list and reset the form
-  await dishes.value.push(dish)
+  // await dishes.value.push(dish)
   newDish.value = { title: '', description: '', recipe_url: '' }
   files.value = []
   imagePreviews.value = []
   showAddDishForm.value = false
 }
 
-const deleteDish = async (dishId: string) => {
-  if (!confirm('Are you sure you want to delete this dish?')) return
-
-  const { error } = await supabase.from('dishes').delete().eq('id', dishId)
-
-  if (error) {
-    console.error('Failed to delete dish:', error)
-    return
-  }
-
-  // Remove from local list
+// Removes a dish from the local list
+const removeDish = async (dishId: string) => {
   dishes.value = dishes.value.filter((dish) => dish.id !== dishId)
 }
 
-onMounted(fetchDishes)
+/* -------------------- Real-Time Subscription -------------------- */
+
+// Subscribes to real-time updates for the dishes table
+const subscribeToDishUpdates = () => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (dishesChannel) {
+    dishesChannel.unsubscribe()
+  }
+
+  dishesChannel = supabase
+    .channel('realtime:dishes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'dishes' },
+      (payload) => {
+        console.log('Realtime event for dishes:', payload)
+
+        if (payload.eventType === 'INSERT') {
+          dishes.value.push(payload.new)
+        } else if (payload.eventType === 'UPDATE') {
+          const index = dishes.value.findIndex(
+            (dish) => dish.id === payload.new.id
+          )
+          if (index !== -1) {
+            dishes.value[index] = payload.new
+          }
+        } else if (payload.eventType === 'DELETE') {
+          dishes.value = dishes.value.filter(
+            (dish) => dish.id !== payload.old.id
+          )
+        }
+      }
+    )
+    .subscribe()
+}
+
+/* -------------------- Lifecycle Hooks -------------------- */
+
+onMounted(() => {
+  fetchDishes()
+  subscribeToDishUpdates()
+})
+
+onUnmounted(() => {
+  // Unsubscribe from the real-time channel when the component is unmounted
+  if (dishesChannel) {
+    dishesChannel.unsubscribe()
+  }
+})
 </script>
