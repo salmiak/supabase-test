@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
 /* -------------------- Props and Emits -------------------- */
@@ -58,6 +58,9 @@ const dish = ref<any>({
   recipe_url: '',
   images: [],
 })
+
+let dishChannel: any = null // Store the real-time channel reference
+let dishImagesChannel: any = null // Store the real-time channel reference for dish_images
 
 /* -------------------- Methods -------------------- */
 
@@ -91,6 +94,89 @@ const deleteDish = async (dishId: string) => {
 
   emits('remove-dish', props.dishId)
 }
+/* -------------------- Real-Time Subscription -------------------- */
 
-onMounted(fetchDish)
+const subscribeToDishUpdates = () => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (dishChannel) {
+    dishChannel.unsubscribe()
+  }
+
+  // Subscribe to real-time updates for the specific dish
+  dishChannel = supabase
+    .channel(`realtime:dish:${props.dishId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'dishes',
+        filter: `id=eq.${props.dishId}`,
+      },
+      (payload) => {
+        console.log('Realtime event for dish:', payload)
+
+        if (payload.eventType === 'UPDATE') {
+          // Update the dish data when it is updated on the server
+          fetchDish()
+        } else if (payload.eventType === 'DELETE') {
+          // Notify parent to remove the dish if it is deleted
+          emits('remove-dish', props.dishId)
+        }
+      }
+    )
+    .subscribe()
+}
+
+const subscribeToDishImagesUpdates = () => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (dishImagesChannel) {
+    dishImagesChannel.unsubscribe()
+  }
+
+  // Subscribe to real-time updates for the dish_images table
+  dishImagesChannel = supabase
+    .channel(`realtime:dish_images:${props.dishId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'dish_images',
+        filter: `dish_id=eq.${props.dishId}`,
+      },
+      (payload) => {
+        console.log('Realtime event for dish_images:', payload)
+
+        if (payload.eventType === 'INSERT') {
+          // Add the new image to the dish's images array
+          dish.value.images.push(payload.new)
+        } else if (payload.eventType === 'DELETE') {
+          // Remove the deleted image from the dish's images array
+          dish.value.images = dish.value.images.filter(
+            (img) => img.image_url !== payload.old.image_url
+          )
+        }
+      }
+    )
+    .subscribe()
+}
+
+/* -------------------- Lifecycle Hooks -------------------- */
+
+onMounted(() => {
+  fetchDish()
+  subscribeToDishUpdates()
+  subscribeToDishImagesUpdates()
+})
+
+onUnmounted(() => {
+  // Unsubscribe from the real-time channel when the component is unmounted
+  if (dishChannel) {
+    dishChannel.unsubscribe()
+  }
+  if (dishImagesChannel) {
+    dishImagesChannel.unsubscribe()
+  }
+})
 </script>

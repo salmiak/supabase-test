@@ -73,12 +73,12 @@
 
 <script setup lang="ts">
 import imageCompression from 'browser-image-compression'
-
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
 import DishItem from '@/components/DishItem.vue'
 
+/* -------------------- Reactive State -------------------- */
 const dishes = ref<any[]>([])
 const loading = ref(true)
 const showAddDishForm = ref(false)
@@ -88,6 +88,11 @@ const newDish = ref({
   recipe_url: '',
 })
 
+let dishesChannel: any = null // Store the real-time channel reference
+
+/* -------------------- Methods -------------------- */
+
+// Fetches the list of dishes from the server
 const fetchDishes = async () => {
   loading.value = true
 
@@ -102,6 +107,7 @@ const fetchDishes = async () => {
   loading.value = false
 }
 
+// Handles file uploads for dish images
 const files = ref<File[]>([])
 const imagePreviews = ref<string[]>([])
 
@@ -113,6 +119,7 @@ const handleFileUpload = (e: Event) => {
   }
 }
 
+// Adds a new dish to the database
 const addDish = async () => {
   // get current user
   const {
@@ -172,17 +179,65 @@ const addDish = async () => {
   }
 
   // Refresh the dish list and reset the form
-  await dishes.value.push(dish)
+  // await dishes.value.push(dish)
   newDish.value = { title: '', description: '', recipe_url: '' }
   files.value = []
   imagePreviews.value = []
   showAddDishForm.value = false
 }
 
+// Removes a dish from the local list
 const removeDish = async (dishId: string) => {
-  // Remove from local list
   dishes.value = dishes.value.filter((dish) => dish.id !== dishId)
 }
 
-onMounted(fetchDishes)
+/* -------------------- Real-Time Subscription -------------------- */
+
+// Subscribes to real-time updates for the dishes table
+const subscribeToDishUpdates = () => {
+  // Unsubscribe from any existing channel to avoid duplicates
+  if (dishesChannel) {
+    dishesChannel.unsubscribe()
+  }
+
+  dishesChannel = supabase
+    .channel('realtime:dishes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'dishes' },
+      (payload) => {
+        console.log('Realtime event for dishes:', payload)
+
+        if (payload.eventType === 'INSERT') {
+          dishes.value.push(payload.new)
+        } else if (payload.eventType === 'UPDATE') {
+          const index = dishes.value.findIndex(
+            (dish) => dish.id === payload.new.id
+          )
+          if (index !== -1) {
+            dishes.value[index] = payload.new
+          }
+        } else if (payload.eventType === 'DELETE') {
+          dishes.value = dishes.value.filter(
+            (dish) => dish.id !== payload.old.id
+          )
+        }
+      }
+    )
+    .subscribe()
+}
+
+/* -------------------- Lifecycle Hooks -------------------- */
+
+onMounted(() => {
+  fetchDishes()
+  subscribeToDishUpdates()
+})
+
+onUnmounted(() => {
+  // Unsubscribe from the real-time channel when the component is unmounted
+  if (dishesChannel) {
+    dishesChannel.unsubscribe()
+  }
+})
 </script>
