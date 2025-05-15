@@ -9,21 +9,9 @@
         <li
           v-for="dish in dishes"
           :key="dish.id">
-          <h2>{{ dish.title }}</h2>
-          <p>{{ dish.description }}</p>
-          <div v-if="dish.images?.length">
-            <img
-              v-for="img in dish.images"
-              :src="img.image_url"
-              class="w-32 h-32 object-cover mr-2" />
-          </div>
-          <a
-            v-if="dish.recipe_url"
-            :href="dish.recipe_url"
-            target="_blank"
-            >View Recipe</a
-          >
-          <button @click="deleteDish(dish.id)">🗑 Delete</button>
+          <DishItem
+            :dishId="dish.id"
+            @remove-dish="removeDish(dish.id)" />
         </li>
       </ul>
     </div>
@@ -62,8 +50,7 @@
         <label for="description">Description</label>
         <textarea
           v-model="newDish.description"
-          id="description"
-          required></textarea>
+          id="description"></textarea>
       </div>
       <div>
         <label for="recipe_url">Recipe URL</label>
@@ -88,6 +75,8 @@ import imageCompression from 'browser-image-compression'
 import { ref, onMounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
+import DishItem from '@/components/DishItem.vue'
+
 const dishes = ref<any[]>([])
 const loading = ref(true)
 const showAddDishForm = ref(false)
@@ -100,9 +89,7 @@ const newDish = ref({
 const fetchDishes = async () => {
   loading.value = true
 
-  const { data, error } = await supabase
-    .from('dishes')
-    .select('id, title, description, recipe_url, images:dish_images(image_url)')
+  const { data, error } = await supabase.from('dishes').select('id')
 
   if (error) {
     console.error('Error fetching dishes:', error)
@@ -190,16 +177,7 @@ const addDish = async () => {
   showAddDishForm.value = false
 }
 
-const deleteDish = async (dishId: string) => {
-  if (!confirm('Are you sure you want to delete this dish?')) return
-
-  const { error } = await supabase.from('dishes').delete().eq('id', dishId)
-
-  if (error) {
-    console.error('Failed to delete dish:', error)
-    return
-  }
-
+const removeDish = async (dishId: string) => {
   // Remove from local list
   dishes.value = dishes.value.filter((dish) => dish.id !== dishId)
 }
