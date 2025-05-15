@@ -131,7 +131,7 @@
 import Icon from '@/components/Icon.vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DishSelector from '@/components/DishSelector.vue'
-import DishItem from './DishItem.vue'
+import DishItem from '@/components/DishItem.vue'
 import MealEatenToggle from '@/components/MealEatenToggle.vue'
 import MealMoveWeek from '@/components/MealMoveWeek.vue'
 import MealDelete from '@/components/MealDelete.vue'
