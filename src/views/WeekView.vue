@@ -5,49 +5,28 @@
     :week-id="weekData.id"
     @meal-added="fetchWeekData" />
 
-  <div v-if="loading">
-    <div class="flex flex-col items-center mx-3 my-8 text-teal-500">
-      <Icon
-        name="Clock"
-        class="animate-spin"
-        :size="36" />
-      <div
-        class="m-3 text-center text-lg font-semibold font-stretch-ultra-expanded">
-        Laddar vecka...
-      </div>
-    </div>
-  </div>
-  <div
-    v-else
-    class="meal-list">
-    <div
-      v-if="meals.length === 0"
-      class="flex flex-col items-center mx-3 my-8 text-teal-500">
-      <Icon
-        name="Rat"
-        :size="36" />
-      <div
-        class="m-3 text-center text-lg font-semibold font-stretch-ultra-expanded">
-        Än så länge inga måltider<br />planerade för denna vecka.
-      </div>
-    </div>
+  <WeekStateLoading v-if="loading" />
+  <template v-else>
+    <!-- Empty state -->
+    <WeekStateEmpty v-if="meals.length === 0" />
 
     <MealItem
       v-for="meal in meals"
       :key="meal.id"
       :mealId="meal.id"
       @remove-meal="removeMeal(meal.id)"></MealItem>
-  </div>
+  </template>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
-import Icon from '@/components/Icon.vue'
 import AddMealForm from '@/components/AddMealForm.vue'
 import MealItem from '@/components/MealItem.vue'
 import WeekHeader from '@/components/WeekHeader.vue'
+import WeekStateLoading from '@/components/WeekStateLoading.vue'
+import WeekStateEmpty from '@/components/WeekStateEmpty.vue'
 
 const route = useRoute()
 const weekNbr = ref(route.params.week_nbr as string)
