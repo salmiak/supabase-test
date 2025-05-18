@@ -2,9 +2,21 @@
   <div>
     <h1><span>Alla recept</span></h1>
 
-    <div v-if="loading">Loading dishes...</div>
+    <StateLayout
+      v-if="loading"
+      iconName="Clock"
+      spinIcon>
+      Laddar recept
+    </StateLayout>
+
     <div v-else>
-      <div v-if="dishes.length === 0">No dishes found.</div>
+      <!-- Empty State -->
+      <StateLayout
+        v-if="dishes.length === 0"
+        iconName="Rat">
+        Inga recept hittades.
+      </StateLayout>
+
       <ul>
         <li
           v-for="dish in dishes"
@@ -77,6 +89,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 
 import DishItem from '@/components/DishItem.vue'
+import StateLayout from '@/components/StateLayout.vue'
 
 /* -------------------- Reactive State -------------------- */
 const dishes = ref<any[]>([])
