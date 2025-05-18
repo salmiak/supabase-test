@@ -2,28 +2,28 @@
   <div v-if="loading">Laddar recept</div>
   <div
     v-else
-    class="grid grid-cols-[1fr_2.5rem] items-center px-1 py-2 border-b border-teal-200">
-    <div class="px-2">
-      <template v-if="editMode">
+    class="grid grid-cols-[1fr_2.5rem] w-full items-top px-1 py-2 border-b border-teal-200">
+    <template v-if="editMode">
+      <div class="px-2">
         <!-- Edit Mode -->
         <input
           v-model="dish.title"
           type="text"
-          class="w-full mb-2 p-1 border border-gray-300 rounded"
-          placeholder="Dish Title" />
+          class="py-1 px-2 my-1 rounded-lg w-full bg-white border border-pink-300"
+          placeholder="Rättens titel" />
         <textarea
           v-model="dish.description"
-          class="w-full mb-2 p-1 border border-gray-300 rounded"
-          placeholder="Dish Description"></textarea>
+          class="block w-full field-sizing-content text-sm p-2 border border-pink-300 rounded-lg bg-white"
+          placeholder="Rättens beskrivning"></textarea>
         <input
           v-model="dish.recipe_url"
           type="text"
-          class="w-full mb-2 p-1 border border-gray-300 rounded"
-          placeholder="Recipe URL" />
+          class="py-1 px-2 my-1 rounded-lg w-full bg-white border border-pink-300"
+          placeholder="Rättens URL" />
 
         <!-- Image Management -->
         <div class="mb-2">
-          <h4 class="font-semibold">Images</h4>
+          <h4 class="font-semibold">Bilder</h4>
           <div
             v-if="dish.images?.length"
             class="flex mt-2 mb-2">
@@ -33,11 +33,11 @@
               class="relative w-28 h-28 mr-2">
               <img
                 :src="img.image_url"
-                class="w-full h-full rounded object-cover" />
+                class="w-full h-full rounded-xl object-cover" />
               <button
                 @click="removeImage(img.image_url)"
-                class="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
-                ✖
+                class="absolute top-1 right-1 bg-teal-50 text-xs px-1 py-0.5 rounded">
+                <Icon name="Trash" />
               </button>
             </div>
           </div>
@@ -56,19 +56,23 @@
               class="w-28 h-28 rounded object-cover mr-2" />
           </div>
         </div>
-
+      </div>
+      <!-- Save and Cancel Buttons -->
+      <div class="text-center">
         <button
           @click="saveDish"
-          class="text-sm text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600">
-          Save
+          class="text-sm text-white px-2 py-1 rounded hover:bg-green-600">
+          <Icon name="Save" />
         </button>
         <button
           @click="toggleEditMode"
-          class="text-sm text-white bg-gray-500 px-2 py-1 rounded hover:bg-gray-600 ml-2">
-          Cancel
+          class="text-sm text-white px-2 py-1 rounded hover:bg-gray-600 mt-1">
+          <Icon name="X" />
         </button>
-      </template>
-      <template v-else>
+      </div>
+    </template>
+    <template v-else>
+      <div class="px-2">
         <!-- View Mode -->
         <h3 class="font-semibold text-teal-700">
           <a
@@ -92,25 +96,29 @@
             :src="img.image_url"
             class="w-28 h-28 rounded object-cover mr-2" />
         </div>
+      </div>
+      <div class="text-center">
         <button
           v-if="showDelete"
           @click="deleteDish(dish.id)"
-          class="text-sm text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600">
-          🗑 Delete
+          class="text-sm text-white px-2 py-1 rounded hover:bg-red-600">
+          <Icon name="Trash" />
         </button>
         <button
+          v-if="showDelete"
           @click="toggleEditMode"
-          class="text-sm text-white bg-blue-500 px-2 py-1 rounded hover:bg-blue-600 ml-2">
-          ✏️ Edit
+          class="text-sm text-white px-2 py-1 rounded hover:bg-blue-600 mt-1">
+          <Icon name="Edit" />
         </button>
-      </template>
-    </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabaseClient'
+import Icon from '@/components/Icon.vue'
 
 /* -------------------- Props and Emits -------------------- */
 const props = defineProps<{
