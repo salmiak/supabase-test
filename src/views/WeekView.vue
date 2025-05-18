@@ -7,12 +7,21 @@
     @meal-added="fetchWeekData" />
 
   <!-- Loading State -->
-  <WeekStateLoading v-if="loading" />
+  <StateLayout
+    v-if="loading"
+    iconName="Clock"
+    spinIcon>
+    Laddar vecka {{ weekNbr }}, {{ weekYear }}
+  </StateLayout>
 
   <!-- Main Content -->
   <template v-else>
     <!-- Empty State -->
-    <WeekStateEmpty v-if="meals.length === 0" />
+    <StateLayout
+      v-if="meals.length === 0"
+      iconName="Rat">
+      Än så länge inga måltider<br />planerade för denna vecka.
+    </StateLayout>
 
     <!-- Meal List -->
     <MealItem
@@ -32,8 +41,7 @@ import { useRoute } from 'vue-router'
 import AddMealForm from '@/components/AddMealForm.vue'
 import MealItem from '@/components/MealItem.vue'
 import WeekHeader from '@/components/WeekHeader.vue'
-import WeekStateLoading from '@/components/WeekStateLoading.vue'
-import WeekStateEmpty from '@/components/WeekStateEmpty.vue'
+import StateLayout from '@/components/StateLayout.vue'
 
 /* -------------------- Reactive State -------------------- */
 const route = useRoute()
