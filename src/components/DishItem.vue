@@ -20,6 +20,43 @@
           type="text"
           class="w-full mb-2 p-1 border border-gray-300 rounded"
           placeholder="Recipe URL" />
+
+        <!-- Image Management -->
+        <div class="mb-2">
+          <h4 class="font-semibold">Images</h4>
+          <div
+            v-if="dish.images?.length"
+            class="flex mt-2 mb-2">
+            <div
+              v-for="img in dish.images"
+              :key="img.image_url"
+              class="relative w-28 h-28 mr-2">
+              <img
+                :src="img.image_url"
+                class="w-full h-full rounded object-cover" />
+              <button
+                @click="removeImage(img.image_url)"
+                class="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
+                ✖
+              </button>
+            </div>
+          </div>
+          <input
+            type="file"
+            multiple
+            @change="handleFileUpload"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+          <div
+            v-if="imagePreviews.length"
+            class="flex mt-2">
+            <img
+              v-for="preview in imagePreviews"
+              :key="preview"
+              :src="preview"
+              class="w-28 h-28 rounded object-cover mr-2" />
+          </div>
+        </div>
+
         <button
           @click="saveDish"
           class="text-sm text-white bg-green-500 px-2 py-1 rounded hover:bg-green-600">
@@ -96,6 +133,9 @@ const dish = ref<any>({
   images: [],
 })
 
+const files = ref<File[]>([])
+const imagePreviews = ref<string[]>([])
+
 let dishChannel: any = null // Store the real-time channel reference
 let dishImagesChannel: any = null // Store the real-time channel reference for dish_images
 
@@ -125,7 +165,33 @@ const toggleEditMode = () => {
   editMode.value = !editMode.value
 }
 
-// Saves the updated dish details to the database
+// Handles file uploads
+const handleFileUpload = (e: Event) => {
+  const input = e.target as HTMLInputElement
+  if (input.files) {
+    files.value = Array.from(input.files)
+    imagePreviews.value = files.value.map((file) => URL.createObjectURL(file))
+  }
+}
+
+// Removes an image from the dish
+const removeImage = async (imageUrl: string) => {
+  const { error } = await supabase
+    .from('dish_images')
+    .delete()
+    .eq('image_url', imageUrl)
+
+  if (error) {
+    console.error('Error removing image:', error)
+    return
+  }
+
+  dish.value.images = dish.value.images.filter(
+    (img: any) => img.image_url !== imageUrl
+  )
+}
+
+// Saves the updated dish details and uploads new images
 const saveDish = async () => {
   const { error } = await supabase
     .from('dishes')
@@ -140,6 +206,32 @@ const saveDish = async () => {
     console.error('Error saving dish:', error)
     return
   }
+
+  // Upload new images
+  for (const file of files.value) {
+    const path = `${props.dishId}/${file.name}`
+    const { error: uploadError } = await supabase.storage
+      .from('dish-images')
+      .upload(path, file)
+
+    if (uploadError) {
+      console.error('Error uploading image:', uploadError)
+      continue
+    }
+
+    const publicUrl = supabase.storage.from('dish-images').getPublicUrl(path)
+      .data.publicUrl
+
+    await supabase
+      .from('dish_images')
+      .insert({ dish_id: props.dishId, image_url: publicUrl })
+
+    // dish.value.images.push({ image_url: publicUrl })
+  }
+
+  // Clear file inputs
+  files.value = []
+  imagePreviews.value = []
 
   editMode.value = false
   console.log('Dish updated successfully')

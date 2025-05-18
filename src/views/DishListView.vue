@@ -109,7 +109,10 @@ let dishesChannel: any = null // Store the real-time channel reference
 const fetchDishes = async () => {
   loading.value = true
 
-  const { data, error } = await supabase.from('dishes').select('id')
+  const { data, error } = await supabase
+    .from('dishes')
+    .select('id')
+    .order('title')
 
   if (error) {
     console.error('Error fetching dishes:', error)
